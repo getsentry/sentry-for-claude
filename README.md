@@ -118,7 +118,7 @@ To build any target locally, run `src/plugins/<agent>/build.sh <output-dir>`
 | Skill | What it does |
 | --- | --- |
 | `sentry-otel-exporter-setup` | Configure OTel Collector with the Sentry exporter for multi-project routing |
-| `sentry-create-alert` | Create alerts via the Sentry workflow engine API |
+| `sentry-create-monitor` | Create and edit monitors and the alerts that act on them, against the live API schema |
 | `sentry-snapshots-cocoa` | Set up Sentry Snapshots for Apple/Cocoa projects |
 
 ### Reference Library

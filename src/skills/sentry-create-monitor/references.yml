@@ -1,0 +1,7 @@
+needs:
+  # The monitors -> issues -> alerts model this skill's whole procedure assumes, plus the
+  # cron doc it hands off to. Taken as the whole dir because the concept docs cross-link
+  # each other and hydration only places files on disk; SKILL.md reads monitors.md.
+  - concepts/*.md
+  # Metric monitor data sources and alert filters both take a Sentry search query.
+  - search-query-language.md

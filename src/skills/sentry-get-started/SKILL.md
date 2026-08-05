@@ -169,8 +169,9 @@ flag it. You’ll also want to immediately read
 and the baseline-signal context in hand before you start.
 
 When it’s done, surface other options — chiefly the **`sentry-instrument`** skill to add
-more telemetry (logging, profiling, session replay, crons, …), and releases so issues
-tie to the deploy that introduced them.
+more telemetry (logging, profiling, session replay, crons, …), releases so issues tie to
+the deploy that introduced them, and the **`sentry-create-monitor`** skill so someone
+actually gets notified when an issue shows up.
 As in the existing-user path, only name a skill you’ve confirmed is available in your
 harness’s skill list; otherwise offer the docs fallback.
 Don’t auto-run them.
@@ -207,8 +208,13 @@ what they want:
   → the **`sentry-setup-releases`** skill, or do it here from
   [`references/releases/index.md`](references/releases/index.md); the
   `release`/`environment` tag in particular belongs in setup itself.
-- **Improve / harden** (scrubbing, volume, OTel) and **Monitors & alerts** → not built
-  as skills yet; be honest and offer to read through the docs.
+- **Monitors and alerts** — put a threshold on a metric, or notify Slack / email /
+  PagerDuty when issues match.
+  → the **`sentry-create-monitor`** skill.
+- **Send OpenTelemetry to Sentry** — Collector pipelines and multi-project routing.
+  → the **`sentry-otel-exporter-setup`** skill.
+- **Improve / harden** (scrubbing, volume) → not built as skills yet; be honest and
+  offer to read through the docs.
 
 ## Honesty about coverage
 

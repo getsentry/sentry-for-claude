@@ -13,11 +13,27 @@ Monitors detect; Alerts respond.
 They’re configured independently: one alert can watch many monitors/projects, and one
 monitor can feed several alerts.
 
-> Terminology: this model uses **Metric Monitor** for the detection stage and reserves
-> **Alert** for the response stage.
-> Older docs and integrations still say “metric **alert**” for the same detection
-> concept — treat them as the same thing; the rename isn’t fully settled across the
-> product.
+## Naming — the product and the API disagree
+
+The API kept the engine’s original vocabulary while the product settled on this one.
+Every mismatch below shows up in something you will read — a URL, a response body, an
+API reference page, an older doc — so learn them before touching the API:
+
+- **A Monitor is a `detector` in the API.** The endpoints are
+  `/organizations/{org}/detectors/`, and every monitor type is one: `metric_issue`,
+  `uptime_domain_failure`, `monitor_check_in_failure` (cron), `preprod_size_analysis`
+  (mobile builds), plus the auto-created `error` and `issue_stream`. The API reference
+  files these pages under “Monitors & Alerts” while every URL in them says `detectors`.
+- **`/organizations/{org}/monitors/` is the legacy Crons API — don’t use it.** It is the
+  path you would guess from the word “monitor,” it predates this model, and it reaches
+  cron monitors alone.
+  Those same cron monitors are detectors, so `/detectors/` manages them along with every
+  other type.
+- **An Alert is a `workflow` in the API** — `/organizations/{org}/workflows/`, named for
+  the workflow engine that evaluates it.
+- **“Metric alert” means Metric Monitor.** Older docs and integrations use the old name
+  for the detection stage; treat them as the same thing.
+  The rename isn’t fully settled across the product.
 
 ## Monitors — when a signal becomes an issue
 
@@ -61,14 +77,30 @@ An alert is **sources → triggers → filters → actions**:
 
 ## Coverage honesty
 
-Alert creation is automatable via Sentry’s workflow-engine API; several monitor types
-(uptime, dashboards) are heavier UI/API hand-offs today — be upfront about what the
-agent can do end-to-end vs.
-where it walks the user through the UI. The MCP is **read-only** here: it can inspect
-alert rules (`find_alert_rules`, `get_alert_rule`), cron monitors and their check-ins
-(`find_monitors`, `get_monitor_details`), and dashboards — useful for verifying after
-creation — but there is no create or update path for any of them, and uptime monitors
-have no MCP surface at all.
+Alerts and **every custom monitor type** are creatable and editable end-to-end through
+Sentry’s workflow-engine API — metric, uptime, cron, and mobile builds monitors are all
+detectors there.
+Only the metric payload has an API reference page, so building the other
+three means mirroring the shape of an existing monitor of that type; the accepted types
+also depend on what is enabled for the organization.
+
+Two things the API alone doesn’t finish.
+A **Cron Monitor** is inert until the job sends check-ins, which is instrumentation work
+— and because the SDKs upsert a monitor from the `monitor_config` they send with a
+check-in, a cron monitor can be defined entirely from code, keeping the schedule in
+version control beside the job it describes.
+**Uptime** and **Cron** monitors also consume a seat, so on an org with none free they
+are created **disabled** rather than rejected.
+
+**Uptime monitors are the exception to reaching for the API at all** — the MCP creates,
+updates and deletes them directly (`create_uptime_monitor` and friends), which needs no
+auth token and no hand-built payload.
+For everything else the MCP is read-only: it inspects alert rules (`find_alert_rules`,
+`get_alert_rule`), cron monitors and their check-ins (`find_monitors`,
+`get_monitor_details`), and uptime check results (`get_uptime_monitor_details`) — useful
+for verifying after creation, but with no create or update path.
+Note that the alert-rule tools return **legacy** rule IDs, which are not detector or
+workflow IDs.
 
 ## Related
 
