@@ -348,6 +348,7 @@ export default Sentry.withSentry(
 ```
 
 **Version constraints:**
+
 - AI SDK v3–v6: works on the default `@sentry/cloudflare` entrypoint (SDK >=10.6.0)
 - AI SDK **v7**: requires SDK >=10.64.0 and the `@sentry/cloudflare/nodejs_compat`
   entrypoint (see `./nodejs-compat.md`). Setting `recordInputs`/`recordOutputs` on the
@@ -405,8 +406,6 @@ Captures `gen_ai.create_agent` (compile) and `gen_ai.invoke_agent` (invoke) span
 * * *
 
 ## Tracking Conversations
-
-> **Beta:** configuration options and behavior may change.
 
 Conversations groups multi-turn AI activity into a single replay of messages and tool
 calls at **Explore > Conversations**. Every AI span in a chat session must share the
