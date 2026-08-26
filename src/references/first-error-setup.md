@@ -10,7 +10,20 @@ This file owns the **order**, not the details.
 Each step hands off to the reference that owns it — follow that reference, then come
 back. Don’t re-derive what those files already cover.
 
+> [!NOTE]
+> If “onboarding status updates” has not been defined by the skill that led you here,
+> ignore the onboarding notes below.
+> They do not apply to this setup.
+
 ## Step 1 — Detect the platform
+
+> [!NOTE]
+> If you are sending onboarding status updates, this stage is `analyze_project`: inspect
+> the application and identify its platform, SDK, and setup needs.
+> Report `active` before inspection unless the calling skill already started this stage,
+> `waiting` before asking for confirmation, and `completed` once the platform and
+> current Sentry setup are understood.
+> This stage is unskippable.
 
 Read [`sdks/index.md`](sdks/index.md) for the catalog and detection rules.
 Identify the platform from project files (`package.json`, `go.mod`, `requirements.txt`,
@@ -20,12 +33,30 @@ found and confirm** — don’t assume from files alone — then open that platf
 
 ## Step 2 — Provision a project + DSN
 
+> [!NOTE]
+> If you are sending onboarding status updates, this stage is `create_project`: select
+> an existing Sentry project or create one and obtain its DSN. Report `waiting` before
+> requesting creation approval.
+> Keep it `active` while selecting or provisioning every planned project, and report
+> each validated slug in `update.extra.projectSlugs` as its DSN becomes usable.
+> Report `completed` once all planned projects are usable, including all known validated
+> slugs. For one existing project, complete it with `update.extra.projectSlugs` and
+> `update.eventNote: Project already existed.` Do not complete the stage per project.
+> This stage is unskippable.
+
 Follow [`new-project.md`](new-project.md).
 Determine via the MCP whether a fitting project already exists; select it and read its
 DSN, or create one (propose `create_project` and create on a yes, never silently).
 Either way you come back with the DSN to use in `init`.
 
 ## Step 3 — Install the SDK with sane defaults
+
+> [!NOTE]
+> If you are sending onboarding status updates, this stage is `instrument_app`: install
+> and configure the Sentry SDK in the application.
+> Report `active` immediately before changing SDK files and `completed` only after
+> installation and initialization finish.
+> This stage is unskippable.
 
 Following the platform references, install the SDK and write `init` using the DSN from
 Step 2. Take the SDK reference’s **recommended default setup** as written — in practice
@@ -36,6 +67,22 @@ project.
 
 ## Step 4 — Verify end to end
 
+> [!NOTE]
+> If you are sending onboarding status updates,
+> [`setup-verification.md`](setup-verification.md) covers three unskippable stages:
+> 
+> - `plan_test_error`: choose a representative test error and plan how to trigger it
+>   safely. Report `active` while planning, `waiting` for required input or permission,
+>   and `completed` when the path is ready.
+> - `send_verification_error`: trigger the planned error in the instrumented
+>   application. Report `active` before running it, `waiting` when it cannot yet run, and
+>   `completed` once the error is triggered.
+> - `receive_verification_error`: wait for Sentry to ingest and return the error.
+>   Keep it `active` or `waiting` while checking ingestion.
+>   Report each MCP-confirmed issue/group identifier in `update.extra.issueIds`, and
+>   report `completed` only after every project being verified has a confirmed result.
+>   Never include event IDs.
+
 Close the loop with [`setup-verification.md`](setup-verification.md): run the **real**
 application, make it throw a genuine error through its actual init/code path (a
 temporary real trigger in the app is fine — never a standalone script that bypasses
@@ -45,6 +92,14 @@ link**, then confirm it’s verified end to end.
 Not done until the real error is seen in Sentry.
 
 ## Step 5 — Get it into production — this is the point
+
+> [!NOTE]
+> If you are sending onboarding status updates, this stage is `prepare_production`:
+> prepare the instrumentation and release configuration for production.
+> Report `active` when production work begins, `waiting` before requesting deployment
+> approval, and `completed` once configuration is ready or the user chooses a concrete
+> next action. This stage is unskippable.
+> If deployment is deferred, use a concise note stating the agreed next step.
 
 A verified local error just proves the wiring works; the value is capturing errors from
 *real users*. Don’t end on “it works locally.”
@@ -65,6 +120,18 @@ deploy actions without their consent:**
   deploy this, and can I help wire it in?
 
 ## Step 6 — Make sure production stack traces will be readable
+
+> [!NOTE]
+> If you are sending onboarding status updates, this stage is
+> `check_stack_trace_quality`: check source maps or debug symbols and confirm stack
+> traces are readable.
+> Report `active` before inspection and `completed` with `update.runStatus: completed`
+> after the checks and accepted work finish.
+> If the user declines artifact work, complete the stage once the decision and any
+> agreed next step are clear.
+> Report `skipped` with `update.runStatus: completed` only when the detected platform
+> needs no source-map or debug-artifact work.
+> This stage is optional only in that case.
 
 Local frames often look fine while production builds mangle them — minified JavaScript,
 stripped native symbols — so an issue from a real user can be unreadable even though the
