@@ -24,12 +24,12 @@ sentry_sdk.init(
 | Anthropic | `sentry-sdk` | anthropic 0.16.0+ | ✅ Yes | Stable |
 | LangChain | `sentry-sdk` | langchain 0.1.0+ | ✅ Yes | Stable |
 | LangGraph | `sentry-sdk` | langgraph 0.6.6+ | ✅ Yes | Stable |
-| OpenAI Agents SDK | `sentry-sdk` | agents 0.0.19+ | ✅ Yes | ⚠️ Beta |
+| OpenAI Agents SDK | `sentry-sdk` | agents 0.0.19+ | ✅ Yes | Stable |
 | Google GenAI | `sentry-sdk` | google-genai 1.29.0+ | ✅ Yes | Stable |
 | HuggingFace Hub | `sentry-sdk` | huggingface_hub 0.24.7+ | ✅ Yes | Stable |
 | LiteLLM | `sentry-sdk` | litellm 1.77.5+ | ❌ **No** | Stable |
 | MCP | `sentry-sdk` | mcp 1.15.0+ | ✅ Yes | Stable |
-| Pydantic AI | `sentry-sdk` | pydantic-ai 1.0.0+ | ✅ Yes | ⚠️ Beta |
+| Pydantic AI | `sentry-sdk` | pydantic-ai 1.0.0+ | ✅ Yes | Stable |
 
 **LiteLLM MUST be explicitly added to `integrations=[]`.**
 
