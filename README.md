@@ -5,6 +5,7 @@
 > skills here are built from this source into a portable
 > [Agent Plugin](https://github.com/getsentry/agent-plugin) and installable
 > client-specific plugins for [Claude Code](https://github.com/getsentry/plugin-claude),
+> [Cortex Code](https://github.com/getsentry/plugin-cortex-code),
 > [Cursor](https://github.com/getsentry/plugin-cursor),
 > [Codex](https://github.com/getsentry/plugin-codex), and
 > [Grok](https://github.com/getsentry/plugin-grok) — install one of those, not this
@@ -23,6 +24,7 @@ The plugin gives your assistant the context it needs to do it right.
 
 Supports the [**Agent Plugins standard**](https://agent-plugins.org/),
 [**Claude Code**](https://github.com/getsentry/plugin-claude),
+[**Cortex Code**](https://github.com/getsentry/plugin-cortex-code),
 [**Cursor**](https://github.com/getsentry/plugin-cursor),
 [**Codex**](https://github.com/getsentry/plugin-codex), and
 [**Grok**](https://github.com/getsentry/plugin-grok).
@@ -77,6 +79,7 @@ its own **distribution repository**, whose root is exactly that agent’s plugin
 | --- | --- |
 | Agent Plugins 1.0.0 | [`getsentry/agent-plugin`](https://github.com/getsentry/agent-plugin) |
 | Claude Code | [`getsentry/plugin-claude`](https://github.com/getsentry/plugin-claude) |
+| Cortex Code | [`getsentry/plugin-cortex-code`](https://github.com/getsentry/plugin-cortex-code) |
 | Cursor | [`getsentry/plugin-cursor`](https://github.com/getsentry/plugin-cursor) |
 | Codex | [`getsentry/plugin-codex`](https://github.com/getsentry/plugin-codex) |
 | Grok | [`getsentry/plugin-grok`](https://github.com/getsentry/plugin-grok) |
@@ -101,7 +104,7 @@ src/plugins/agent-plugin/build.sh /tmp/sentry-agent-plugin
 ```
 
 To build any target locally, run `src/plugins/<agent>/build.sh <output-dir>`
-(`agent-plugin`, `claude`, `cursor`, `codex`, or `grok`).
+(`agent-plugin`, `claude`, `cortex-code`, `cursor`, `codex`, or `grok`).
 
 ## Skills
 

@@ -7,6 +7,7 @@
 #
 #   agent-plugin -> getsentry/agent-plugin
 #   claude       -> getsentry/plugin-claude
+#   cortex-code  -> getsentry/plugin-cortex-code
 #   cursor       -> getsentry/plugin-cursor
 #   codex        -> getsentry/plugin-codex
 #   grok         -> getsentry/plugin-grok
@@ -28,12 +29,12 @@
 #
 # Consumers install a distribution repository by git ref. Each job builds its
 # distribution tree from this repo, then commits it onto the target branch of the
-# target repo, replacing the previous contents. The five jobs target five
+# target repo, replacing the previous contents. The six jobs target six
 # different repos, so they run in parallel without contention.
 #
 # Cross-repo writes use a GitHub App token scoped per-job to a single plugin
 # repo; the default GITHUB_TOKEN cannot push to other repositories. The app must
-# be installed on the org with contents:write on the four plugin repos, its ID
+# be installed on the org with contents:write on the six plugin repos, its ID
 # stored as the PLUGIN_DEPLOY_APP_ID variable and its private key as the
 # PLUGIN_DEPLOY_KEY secret. Each target repo must already exist with `main` as
 # its default branch; `develop` is branched off it on the first deploy.
@@ -95,6 +96,8 @@ jobs:
             repository: plugin-codex
           - distribution: grok
             repository: plugin-grok
+          - distribution: cortex-code
+            repository: plugin-cortex-code
     concurrency:
       group: deploy-${{ matrix.repository }}-${{ inputs.target_branch || 'develop' }}
       cancel-in-progress: false

@@ -2,8 +2,8 @@
 
 ## Project Overview
 
-Sentry plugin for AI coding assistants (Claude Code, Cursor, Codex, and Grok).
-Provides MCP server integration and skills.
+Sentry plugin for AI coding assistants (Claude Code, Cortex Code, Cursor, Codex, and
+Grok). Provides MCP server integration and skills.
 
 ## Commit Attribution
 
@@ -52,10 +52,11 @@ emit it as `.mcp.json` (Codex’s validator requires the dotted name; Grok auto-
 it).
 Claude declares the server inline in its `plugin.json` (`mcpServers`), so the Claude
 build ships no MCP file.
+Cortex Code likewise declares the server inline in its `plugin.json` (`mcpServers`).
 
 ## Releasing the Plugins
 
-The four agent plugins version in lockstep from `src/plugins/version.json`. Each agent
+The five agent plugins version in lockstep from `src/plugins/version.json`. Each agent
 manifest carries `"version": "0.0.0"` as a placeholder; `install_plugin_manifest` in
 `scripts/build-common.sh` stamps the real value over it at build time, so a release
 bumps a single file and every agent ships the same number.
