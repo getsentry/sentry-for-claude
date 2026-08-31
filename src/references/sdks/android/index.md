@@ -507,6 +507,7 @@ Load the reference file for each, follow its steps, then verify before moving on
 | Metrics | `./metrics.md` | Custom metric tracking (SDK ≥ 8.30.0) |
 | Crons | `./crons.md` | Scheduled jobs, WorkManager check-ins |
 | Integration Reference | `./integrations.md` | Built-in, optional, and Gradle bytecode integrations |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: `Read ./<feature>.md`, follow steps exactly, verify it works.
 

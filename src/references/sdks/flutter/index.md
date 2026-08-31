@@ -422,6 +422,7 @@ Load the reference file for each, follow its steps, then verify before moving on
 | Logging | `./logging.md` | Structured logging / log-trace correlation |
 | Metrics | `./metrics.md` | Custom business metrics |
 | Ecosystem Integrations | `./ecosystem-integrations.md` | HTTP clients, databases, GraphQL, state management |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: `Read ./<feature>.md`, follow steps exactly, verify it works.
 

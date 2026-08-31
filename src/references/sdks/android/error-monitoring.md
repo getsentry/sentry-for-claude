@@ -339,7 +339,7 @@ filtering.
 ```kotlin
 Sentry.configureScope { scope ->
     scope.setTag("app.variant", "google-play")
-    scope.setTag("feature.flag", "checkout_v2")
+    scope.setTag("checkout.step", "payment")
     scope.setTag("subscription.tier", "premium")
 }
 

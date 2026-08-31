@@ -952,8 +952,9 @@ Sentry.addEventProcessor((event, hint) => {
   event.extra = {
     ...event.extra,
     appBuildTime: BUILD_TIMESTAMP,
-    featureFlags: getActiveFeatureFlags(),
+    buildChannel: BUILD_CHANNEL,
   };
+  // Feature-flag evaluations: use featureFlagsIntegration — see feature-flags.md
 
   // Drop events from test environments
   if (isTestEnvironment()) return null;

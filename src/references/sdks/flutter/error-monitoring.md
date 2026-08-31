@@ -48,7 +48,7 @@ await Sentry.captureException(
   e,
   stackTrace: stackTrace,
   withScope: (scope) {
-    scope.setTag('feature', 'checkout');
+    scope.setTag('checkout.step', 'payment');
     scope.setTag('step', 'payment');
     scope.level = SentryLevel.fatal;
     scope.setExtra('orderId', orderId);

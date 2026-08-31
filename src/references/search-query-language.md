@@ -126,8 +126,9 @@ Request/user/device/geo: `http.method`, `http.status_code`, `http.url`, `http.re
 `user.id`, `user.email`, `user.username`, `user.ip`, `device.*`, `os.*`, `geo.city`,
 `geo.country_code`, `geo.region`, `platform.name`, `sdk.name`, `sdk.version`.
 
-Other: `project`, `project.id`, `transaction`, `trace`, `flags["my_flag"]:true`
-(feature-flag evaluation), `has`.
+Other: `project`, `project.id`, `transaction`, `trace`, `flags["my_flag"]:true` /
+`flags["my_flag"]:false` (boolean feature-flag evaluations from SDK evaluation tracking
+— see concepts/feature-flags.md), `has`.
 
 ### Events (Discover, error + transaction events)
 

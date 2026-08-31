@@ -55,7 +55,7 @@ dio.addSentry(
 | `sentry_logging` | `flutter pub add sentry_logging` | Dart `logging` package → Sentry breadcrumbs/events |
 | `sentry_link` | `flutter pub add sentry_link` | GraphQL (gql, graphql_flutter, ferry) tracing |
 | `sentry_supabase` | `flutter pub add sentry_supabase` | Supabase query tracing (SDK ≥9.9.0) |
-| `sentry_firebase_remote_config` | `flutter pub add sentry_firebase_remote_config` | Feature flag tracking |
+| `sentry_firebase_remote_config` | `flutter pub add sentry_firebase_remote_config` | Feature flag evaluation tracking — see [`feature-flags.md`](./feature-flags.md) |
 | `sentry_file` | `flutter pub add sentry_file` | File I/O tracing via `.sentryTrace()` extension |
 
 ### State Management Patterns

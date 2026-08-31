@@ -540,10 +540,10 @@ Sentry.captureMessage("Payment gateway timeout — fallback triggered", "warning
 // Default when omitted: "info"
 
 // With full capture context as second argument
-Sentry.captureMessage("Feature flag evaluation failed", {
+Sentry.captureMessage("Payment gateway timeout — fallback triggered", {
   level: "error",
-  tags: { flagName: "new-checkout", service: "feature-flags" },
-  extra: { userId: "u_42", evaluationContext: { country: "DE" } },
+  tags: { service: "payments", gateway: "stripe" },
+  extra: { userId: "u_42", orderId: "ord_42" },
 });
 ```
 
@@ -705,11 +705,10 @@ Sentry.setContext("checkout", {
   payment_provider: "stripe",
 });
 
-// Feature flags in effect
-Sentry.setContext("feature_flags", {
-  new_checkout: true,
-  dark_mode: false,
-  experiment_group: "variant_b",
+// Structured product context (not feature-flag tracking — use feature-flags.md)
+Sentry.setContext("experiment", {
+  name: "checkout_layout",
+  cohort: "variant_b",
 });
 
 // Remove a context:

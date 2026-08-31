@@ -393,7 +393,7 @@ task handler.
 ```typescript
 Sentry.setTag("page_locale", "de-at");
 Sentry.setTags({
-  "feature.flag": "new_checkout_v2",
+  "checkout.step": "payment",
   "subscription.tier": "enterprise",
   "region": "eu-west-1",
 });

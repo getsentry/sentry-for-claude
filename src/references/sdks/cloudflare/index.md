@@ -514,6 +514,7 @@ Load the corresponding reference file and follow its steps:
 | Durable Objects / Workflows / D1 | `./durable-objects.md` | Instrument Durable Object and Workflow classes; D1 auto-instrumentation |
 | AI / Agent Tracing | `./ai-monitoring.md` | AI/LLM libraries or Workers AI detected — `gen_ai` spans, Vite plugin build-time instrumentation, Conversations, manual agent spans |
 | Node.js Compat | `./nodejs-compat.md` | `nodejs_compat` flag set, or Prisma / Vercel AI SDK v7 detected — `/nodejs_compat` entrypoint, `prismaIntegration` |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: read the reference file, follow its steps exactly, and verify before
 moving on.

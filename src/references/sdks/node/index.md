@@ -696,6 +696,7 @@ Load the corresponding reference file and follow its steps:
 | Runtime Metrics | See inline below | Automatic memory, CPU, and event loop metrics for Node.js and Bun |
 | Crons | `./crons.md` | Scheduled job monitoring, node-cron, Bull, Agenda, Deno.cron |
 | AI Monitoring | `./ai-monitoring.md` | OpenAI, Anthropic, LangChain, Vercel AI, Google GenAI |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: read the reference file, follow its steps exactly, and verify before
 moving on.

@@ -336,6 +336,7 @@ next:
 | Logging | `./logging.md` | Structured log capture needed |
 | Metrics | `./metrics.md` | Aggregate counters, gauges, distributions |
 | User Feedback | `./user-feedback.md` | In-app bug reporting wanted |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: `Read ./<feature>.md`, follow steps exactly, verify it works.
 

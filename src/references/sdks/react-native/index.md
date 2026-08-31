@@ -588,6 +588,7 @@ Load the reference file for each, follow its steps, then verify before moving on
 | Logging | `./logging.md` | Structured logging / log-to-trace correlation |
 | User Feedback | `./user-feedback.md` | Collecting user-submitted reports |
 | Expo Config Plugin | `./expo-config-plugin.md` | Configuring the `@sentry/react-native/expo` plugin |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: `Read ./<feature>.md`, follow steps exactly, verify it works.
 

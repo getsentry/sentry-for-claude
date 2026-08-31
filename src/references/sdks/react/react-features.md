@@ -164,9 +164,10 @@ const sentryReduxEnhancer = Sentry.createReduxEnhancer({
     scope.setTag("user.plan", state.user.plan);
     scope.setTag("user.id", state.user.id);
 
-    // Tag with feature flag state
-    scope.setTag("feature.newCheckout", String(state.features.newCheckout));
-    scope.setTag("feature.darkMode", String(state.settings.darkMode));
+    // Tag with durable app settings (not Sentry feature-flag tracking —
+    // boolean flag evaluations belong in feature-flags.md)
+    scope.setTag("settings.darkMode", String(state.settings.darkMode));
+    scope.setTag("settings.locale", state.settings.locale);
 
     // Tag with routing/navigation state
     scope.setTag("app.currentFlow", state.navigation.currentFlow);

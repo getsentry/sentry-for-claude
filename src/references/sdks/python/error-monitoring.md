@@ -129,7 +129,7 @@ import sentry_sdk
 
 # Tags — indexed and searchable; max key 32 chars, value 200 chars
 sentry_sdk.set_tag("page.locale", "de-at")
-sentry_sdk.set_tags({"feature.flag": "new_checkout_v2", "plan": "enterprise"})
+sentry_sdk.set_tags({"checkout.step": "payment", "plan": "enterprise"})
 
 # User identity
 sentry_sdk.set_user({

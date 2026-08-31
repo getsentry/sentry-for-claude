@@ -525,6 +525,7 @@ Load the reference file, follow its steps, verify before moving on:
 | Logging | `./logging.md` | Structured log search; npm or CDN logs bundle (not Loader Script) |
 | Profiling | `./profiling.md` | Performance-critical, Chromium-only |
 | User Feedback | `./user-feedback.md` | Capture user reports after errors |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: `Read ./<feature>.md`, follow steps exactly, verify it works.
 

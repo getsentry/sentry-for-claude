@@ -231,7 +231,7 @@ Value ≤200 chars, no newlines.
 // Single tag — applied to all subsequent events (isolation scope)
 Sentry.setTag("page_locale", "de-at");
 Sentry.setTag("subscription_tier", "pro");
-Sentry.setTag("feature_flag", "new_checkout_enabled");
+Sentry.setTag("subscription_plan", "pro");
 
 // Multiple tags at once
 Sentry.setTags({
@@ -366,13 +366,13 @@ Sentry.addBreadcrumb({
   data: { itemId: "sku_123", quantity: 2, price: 29.99 },
 });
 
-// Feature flag
+// Domain event (use feature-flags.md / featureFlagsIntegration for real flag tracking)
 Sentry.addBreadcrumb({
   type: "debug",
-  category: "feature-flag",
-  message: "New checkout flow enabled",
+  category: "checkout",
+  message: "Checkout step completed",
   level: "debug",
-  data: { flag: "checkout_v2", value: true },
+  data: { step: "shipping", method: "express" },
 });
 ```
 
