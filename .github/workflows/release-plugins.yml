@@ -106,4 +106,5 @@ jobs:
       ref: refs/tags/plugin/v${{ needs.tag.outputs.version }}
       target_branch: main
       dist_tag: v${{ needs.tag.outputs.version }}
-    secrets: inherit
+    secrets:
+      PLUGIN_DEPLOY_KEY: ${{ secrets.PLUGIN_DEPLOY_KEY }}
