@@ -73,6 +73,14 @@ on:
         type: string
         required: false
         default: ""
+    secrets:
+      # The one secret this workflow uses, declared so a caller passes it
+      # by name rather than handing over every secret in the repository
+      # with `secrets: inherit`. Its own push and workflow_dispatch runs
+      # read the repository secret directly, which is why it is optional.
+      PLUGIN_DEPLOY_KEY:
+        description: Private key of the plugin-deploy GitHub App.
+        required: false
 
 permissions:
   contents: read
