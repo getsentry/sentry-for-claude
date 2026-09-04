@@ -43,6 +43,12 @@ a backup — and “it didn’t run” is as bad as “it crashed.”
   `ok`/`error`) detects *missed* but not *`max_runtime`* timeouts.
 - **Use a stable, descriptive slug** (`nightly-invoice-sync`, not `job-1`) — it’s the
   check-in key, so slug churn on every deploy orphans monitors.
+- **Two ways to declare the config.** The SDKs take a `monitor_config` alongside the
+  check-in and upsert the monitor from it, which keeps the schedule in version control
+  next to the job it describes — usually the one to prefer while instrumenting.
+  Otherwise create the monitor through the detectors API ([`monitors.md`](monitors.md)),
+  never the legacy `/organizations/{org}/monitors/` one.
+  Either way the monitor stays silent until check-ins arrive.
 
 ## Related
 
