@@ -1,6 +1,6 @@
 ---
 name: sentry-instrument
-description: Instrument an application with Sentry — detect the platform, install and initialize the SDK if needed, and wire up any signal — error monitoring, tracing/performance, logging, metrics, profiling, session replay, user feedback, cron check-ins, and AI/LLM monitoring (agent runs, token cost, and conversations for OpenAI, Anthropic, Vercel AI, LangChain, Google GenAI, Pydantic AI, and Laravel AI). Use to add Sentry to a project or to capture more than errors.
+description: Instrument an application with Sentry — detect the platform, install and initialize the SDK if needed, and wire up any signal — error monitoring, tracing/performance, logging, metrics, profiling, session replay, user feedback, cron check-ins, and AI/LLM monitoring (agent runs, token cost, and conversations for OpenAI, Anthropic, Vercel AI, LangChain, Google GenAI, Pydantic AI, Laravel AI, Eve, Flue, the Cloudflare Agents SDK, and Workers AI). Use to add Sentry to a project or to capture more than errors.
 license: Apache-2.0
 ---
 # Sentry Instrument
@@ -36,6 +36,14 @@ Decide what you’re actually doing; it gates how much you run.
 | **First error** | Brand-new install, no Sentry yet | Provision + install + the SDK’s recommended default `init` (**errors + tracing**), then verify a real error. Defer *additional* signals (logging, profiling, replay, metrics, …). |
 | **Add a signal** | Sentry already installed; user wants one more signal | Skip provisioning/install. Jump straight to that one signal. |
 | **Full setup** | “Set it up properly / sensible defaults” | Run first error (which already establishes errors + tracing), then propose the rest of a baseline (releases, source maps, and any signals that fit the app) and add what the user accepts. |
+
+**Framework-owned AI setup exception:** if the user explicitly asks to instrument Eve or
+Flue and Sentry is not installed, do not run the generic first-error SDK setup first.
+Provision a project if needed, then use the detected platform’s `ai-monitoring.md`:
+Eve’s instrumentation owns its OTLP exporter, while Flue’s blueprint installs and
+configures the Sentry SDK. Adding a generic provider integration first can duplicate
+their AI spans. State that Eve’s official path sends traces only; ask whether separate
+error or log monitoring is also required.
 
 Never over-instrument — wiring up logging, session replay, profiling, metrics, etc.
 upfront when the user only asked to get Sentry working is doing more than they asked

@@ -9,9 +9,13 @@ It is built on [tracing](tracing.md), so tracing must be on
 (`tracesSampleRate`/`traces_sample_rate` > 0) — without spans there is nothing to attach
 `gen_ai` data to.
 
-Auto-instrumented for detected AI SDKs on **JavaScript, Python, and Laravel** (OpenAI,
-Anthropic, Vercel AI, LangChain/LangGraph, Google GenAI, HuggingFace, Pydantic AI, and
-Laravel AI; `litellm` needs explicit registration).
+Sentry supports detected AI SDKs on **JavaScript, Python, Laravel, and Cloudflare**.
+Provider integrations cover OpenAI, Anthropic, Vercel AI, LangChain/LangGraph, Google
+GenAI, HuggingFace, Pydantic AI, and Laravel AI (`litellm` needs explicit registration).
+On Cloudflare, Workers AI is auto-instrumented through its binding and the Cloudflare
+Agents SDK uses a class wrapper.
+Eve and Flue ship their own Sentry setup commands instead of using provider
+auto-instrumentation.
 Every other platform is manual `gen_ai.*` instrumentation, or unsupported — the platform
 `index.md` says which.
 

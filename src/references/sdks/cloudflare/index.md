@@ -47,11 +47,15 @@ cat wrangler.toml 2>/dev/null | grep -i 'crons\|triggers'
 cat wrangler.toml 2>/dev/null | grep -i 'compatibility_flags'
 cat wrangler.jsonc 2>/dev/null | grep -i 'compatibility_flags'
 
-# Detect AI/LLM libraries
-cat package.json 2>/dev/null | grep -E '"openai"|"@anthropic-ai"|"ai"|"@google/genai"|"@langchain"|"langchain"'
+# Detect AI/LLM libraries and agent frameworks
+cat package.json 2>/dev/null | grep -E '"openai"|"@anthropic-ai"|"ai"|"@google/genai"|"@langchain"|"langchain"|"@flue/'
 
 # Detect Cloudflare Agents SDK
 cat package.json 2>/dev/null | grep -E '"agents"|"@cloudflare/ai-chat"'
+
+# Detect Workers AI
+cat wrangler.toml wrangler.json wrangler.jsonc 2>/dev/null | grep -i '"ai"\|\[ai\]\|binding.*AI'
+grep -rn 'env\.AI\.run' --include='*.ts' --include='*.js' 2>/dev/null | head -5
 
 # Detect Vite build (enables build-time AI/DB instrumentation via the Sentry Vite plugin)
 ls vite.config.ts vite.config.js vite.config.mts 2>/dev/null
@@ -81,7 +85,7 @@ cat package.json 2>/dev/null | grep -E '"react"|"vue"|"svelte"|"next"'
 | `nodejs_als` or `nodejs_compat` flag set? | **Required** — SDK needs `AsyncLocalStorage`. Recommend `nodejs_compat` generally, and with it the `@sentry/cloudflare/nodejs_compat` entrypoint (drop-in swap, unlocks Prisma + Vercel AI SDK v7, becomes default in v11) |
 | Prisma ORM used? | Recommend `prismaIntegration` via the `/nodejs_compat` entrypoint — see `./nodejs-compat.md` |
 | Workers AI (`env.AI`) used? | Auto-instrumented by `withSentry` — creates `gen_ai` spans (v10.67.0+). **Chat-style app?** Also wire `Sentry.setConversationId()` so multi-turn sessions group in Conversations (automatic for Agents SDK classes wrapped with `instrumentAgentWithSentry`, v10.69.0+) — see `./ai-monitoring.md` |
-| AI/LLM libraries? | Recommend Agent Tracing — see `./ai-monitoring.md`. On workerd, `openai`/`@anthropic-ai/sdk`/`@google/genai` need the Vite plugin or manual client wrapping |
+| AI/LLM libraries or Flue? | Recommend Agent Tracing — see `./ai-monitoring.md`. Use Flue’s Sentry blueprint when detected. On workerd, `openai`/`@anthropic-ai/sdk`/`@google/genai` need the Vite plugin or manual client wrapping |
 | Builds with Vite (or could)? | Recommend `sentryCloudflareVitePlugin` (v10.68.0+, experimental) — build-time instrumentation of bundled AI/DB packages. See `./ai-monitoring.md` |
 | Companion frontend? | Trigger Phase 4 cross-link |
 
@@ -108,8 +112,9 @@ Don’t ask open-ended questions — lead with a proposal:
   when DOs are configured
 - ⚡ **Workflows** — automatic span creation for workflow steps; recommend when Workflows
   are configured
-- ⚡ **AI / Agent Tracing** — Workers AI, OpenAI, Anthropic, Google Gen AI, Vercel AI
-  SDK, LangChain, LangGraph; recommend when AI libraries or `env.AI` detected.
+- ⚡ **AI / Agent Tracing** — Workers AI, Cloudflare Agents, Flue, OpenAI, Anthropic,
+  Google Gen AI, Vercel AI SDK, LangChain, and LangGraph; recommend when AI libraries,
+  agent frameworks, or `env.AI` are detected.
   For chat apps, include conversation tracking (`setConversationId`) in the same pass —
   spans alone leave the Conversations view empty
 
@@ -124,16 +129,17 @@ Don’t ask open-ended questions — lead with a proposal:
 | D1 Instrumentation | D1 database bindings present |
 | Durable Objects | Durable Object bindings configured |
 | Workflows | Workflow bindings configured |
-| AI / Agent Tracing | App uses Workers AI (`env.AI`), OpenAI, Anthropic, Google Gen AI, Vercel AI SDK, LangChain, or LangGraph |
+| AI / Agent Tracing | App uses Workers AI (`env.AI`), Cloudflare Agents, Flue, OpenAI, Anthropic, Google Gen AI, Vercel AI SDK, LangChain, or LangGraph |
 | Metrics | App needs custom counters, gauges, or distributions |
 
 Propose: *“I recommend setting up Error Monitoring + Tracing.
 Want me to also add D1 instrumentation and Crons monitoring?”*
 
-**Exception — AI apps:** when Workers AI or an LLM SDK is detected, conversation
-tracking is **not optional** — include it in the baseline proposal alongside Error
-Monitoring + Tracing, and implement it in the same pass (see `./ai-monitoring.md`). An
-AI setup that produces spans but no Conversations is incomplete.
+**Exception — AI apps:** when Workers AI, Cloudflare Agents, Flue, or an LLM SDK is
+detected, conversation tracking is **not optional** — include it in the baseline
+proposal alongside Error Monitoring + Tracing, and implement it in the same pass (see
+`./ai-monitoring.md`). An AI setup that produces spans but no Conversations is
+incomplete.
 
 * * *
 
@@ -512,7 +518,7 @@ Load the corresponding reference file and follow its steps:
 | Logging | `./logging.md` | Structured logs via `Sentry.logger.*`, log-to-trace correlation |
 | Crons | `./crons.md` | Scheduled handler monitoring, `withMonitor`, check-in API |
 | Durable Objects / Workflows / D1 | `./durable-objects.md` | Instrument Durable Object and Workflow classes; D1 auto-instrumentation |
-| AI / Agent Tracing | `./ai-monitoring.md` | AI/LLM libraries or Workers AI detected — `gen_ai` spans, Vite plugin build-time instrumentation, Conversations, manual agent spans |
+| AI / Agent Tracing | `./ai-monitoring.md` | Workers AI, Cloudflare Agents, Flue, or AI/LLM libraries detected — `gen_ai` spans, framework setup, Conversations, and manual agent spans |
 | Node.js Compat | `./nodejs-compat.md` | `nodejs_compat` flag set, or Prisma / Vercel AI SDK v7 detected — `/nodejs_compat` entrypoint, `prismaIntegration` |
 
 For each feature: read the reference file, follow its steps exactly, and verify before
