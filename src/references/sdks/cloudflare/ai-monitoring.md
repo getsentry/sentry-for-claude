@@ -149,40 +149,14 @@ attribution, and the Agents SDK pattern.
 
 ## Path 2: Cloudflare Agents SDK
 
-When `agents`, `@cloudflare/ai-chat`, or `agents/mcp` is present, wrap each exported
-agent class with `instrumentAgentWithSentry`. The wrapper adds Durable Object and
-callable RPC instrumentation and sets a conversation ID for each chat turn and
-`@callable()` RPC. See the
-[Cloudflare Agents SDK guide](https://docs.sentry.io/platforms/javascript/guides/cloudflare/features/agents-sdk/)
-for supported classes and older SDK behavior.
-
-```typescript
-import * as Sentry from "@sentry/cloudflare";
-import { Agent, callable } from "agents";
-
-class MyAgentBase extends Agent<Env> {
-  @callable()
-  async greet(name: string): Promise<string> {
-    return `Hello, ${name}!`;
-  }
-}
-
-export const MyAgent = Sentry.instrumentAgentWithSentry(
-  (env: Env) => ({
-    dsn: env.SENTRY_DSN,
-    tracesSampleRate: 1.0,
-    enableRpcTracePropagation: true,
-  }),
-  MyAgentBase,
-);
-```
-
-This wrapper supplies agent and conversation context; model calls still need Workers AI,
-the Vite path, or a supported manual client wrapper.
-The default conversation ID is the agent instance name.
-If an instance is shared across chats, call `Sentry.setConversationId(chatSessionId)` at
-the start of `onChatMessage`, before model or tool calls.
-See [Tracking Conversations](#tracking-conversations) for reset and version behavior.
+When `agents`, `@cloudflare/ai-chat`, or `agents/mcp` is present, follow the dedicated
+[Cloudflare Agents SDK setup](./durable-objects.md#cloudflare-agents-sdk-instrumentagentwithsentry).
+It covers class wrapping, Vite auto-instrumentation, and Durable Object and RPC
+behavior. Then use Workers AI, the Vite path, or a supported manual client wrapper to
+instrument the model calls.
+See
+[Cloudflare Agents SDK conversation IDs](#cloudflare-agents-sdk-automatic-conversation-ids-v10690)
+for grouping and reset behavior.
 
 ## Path 3: Flue Blueprint
 

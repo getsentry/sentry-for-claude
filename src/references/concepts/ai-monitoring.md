@@ -9,15 +9,12 @@ It is built on [tracing](tracing.md), so tracing must be on
 (`tracesSampleRate`/`traces_sample_rate` > 0) — without spans there is nothing to attach
 `gen_ai` data to.
 
-Sentry supports detected AI SDKs on **JavaScript, Python, Laravel, and Cloudflare**.
-Provider integrations cover OpenAI, Anthropic, Vercel AI, LangChain/LangGraph, Google
-GenAI, HuggingFace, Pydantic AI, and Laravel AI (`litellm` needs explicit registration).
-On Cloudflare, Workers AI is auto-instrumented through its binding and the Cloudflare
-Agents SDK uses a class wrapper.
-Eve and Flue ship their own Sentry setup commands instead of using provider
-auto-instrumentation.
-Every other platform is manual `gen_ai.*` instrumentation, or unsupported — the platform
-`index.md` says which.
+Sentry supports provider integrations and framework-provided telemetry exporters.
+Provider integrations observe model clients directly.
+Some agent frameworks emit their own OpenTelemetry `gen_ai.*` spans instead; use the
+framework’s Sentry integration rather than adding a second span producer, or spans,
+tokens, and cost can be counted twice.
+The platform `index.md` says which path is supported.
 
 **Auto-instrumentation is runtime-dependent, not just language-dependent.** It patches
 the AI client at require/import time, so it only applies on a patchable runtime.
@@ -55,12 +52,11 @@ hold spans from multiple conversations — the two are independent.
 dashes or underscores only (a UUID, or a prefixed id like `conv_5j66Up…`). Never use a
 URL, email, or other free-form text: Sentry uses the id as a URL path segment, so a
 value containing a slash breaks Conversations for that session.
-Some integrations infer the id automatically (Python OpenAI Agents, Node OpenAI, Laravel
-AI agents using `Conversational` + `RemembersConversations`); everything else sets it
-explicitly. The view also needs input/output capture and gen_ai span streaming (both on
-by default on recent JS/Python SDKs; Laravel AI spans are emitted directly) or it
-renders empty, and a `setUser`/`set_user` call to populate the User column where
-supported.
+Some integrations infer the id automatically; others require it explicitly.
+Check the platform’s `ai-monitoring.md` before setting one manually.
+The view also needs input/output capture and gen_ai span streaming (both on by default
+on recent JS/Python SDKs; Laravel AI spans are emitted directly) or it renders empty,
+and a `setUser`/`set_user` call to populate the User column where supported.
 
 ## Token accounting (avoid negative costs)
 

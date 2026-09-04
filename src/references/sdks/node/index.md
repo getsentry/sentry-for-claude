@@ -53,7 +53,7 @@ cat package.json 2>/dev/null | grep -E '"winston"|"pino"|"bunyan"'
 cat package.json 2>/dev/null | grep -E '"node-cron"|"cron"|"agenda"|"bull"|"bullmq"'
 
 # Detect AI / LLM usage
-cat package.json 2>/dev/null | grep -E '"openai"|"@anthropic-ai"|"@langchain"|"@vercel/ai"|"@google/generative-ai"|"eve"|"@flue/'
+cat package.json 2>/dev/null | grep -E '"openai"|"@anthropic-ai"|"@langchain"|"ai"|"@google/genai"|"@google/generative-ai"|"eve"|"@flue/'
 
 # Detect OpenTelemetry tracing
 cat package.json 2>/dev/null | grep -E '"@opentelemetry/sdk-node"|"@opentelemetry/sdk-trace-node"|"@opentelemetry/sdk-trace-base"'
