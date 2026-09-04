@@ -131,6 +131,8 @@ Eve records span metadata by default.
 After the user approves prompt and response capture, add `recordInputs: true` and
 `recordOutputs: true` to the generated `defineInstrumentation` object.
 Preserve its existing `setup` callback and exporter.
+Eve emits its session ID as `gen_ai.conversation.id`; do not replace it with a
+per-request ID.
 
 Eve’s OTLP path sends traces only.
 It does not create Sentry issues or logs because Sentry’s OTLP intake does not accept
@@ -165,7 +167,9 @@ SENTRY_TRACES_SAMPLE_RATE=1
 traces remain absent.
 The blueprint removes Sentry’s provider integrations because Flue already emits the
 model spans; do not add them back or token and cost totals will be doubled.
-Verify a tool-using prompt produces `invoke_agent`, `chat`, and `execute_tool` spans.
+Flue emits its persisted conversation ID as `gen_ai.conversation.id`; do not replace it
+with a per-request ID. Verify a tool-using prompt produces `invoke_agent`, `chat`, and
+`execute_tool` spans.
 Then emit one Flue log and trigger a terminal failure to confirm the correlated log and
 one Sentry issue.
 
@@ -310,6 +314,8 @@ transactions while sampling other traffic at a lower rate.
 ## Conversation Tracking
 
 Link AI spans across turns into a chat-style timeline at **Explore > Conversations**.
+Eve and Flue emit their framework-owned conversation IDs automatically.
+For provider integrations that do not infer an ID, set one explicitly as shown below.
 
 **Prerequisites:** `streamGenAiSpans` defaults to `true` (SDK >=10.61.0, so AI spans
 stream as standalone items) and genAI input/output capture enabled (on by default via
@@ -366,5 +372,5 @@ Sentry.setUser({ id: "user_123", email: "jane@example.com", username: "jane" });
 | Prompts not captured | genAI capture is on by default; ensure you haven’t set `dataCollection: { genAI: { inputs: false } }`, or pass `recordInputs: true` explicitly |
 | AI Agents Dashboard empty | Ensure traces are being sent; check DSN and `tracesSampleRate` |
 | Wrong cost calculations | Cached/reasoning tokens are subsets of totals, not additions |
-| Conversations view empty | Ensure `streamGenAiSpans` is enabled (default since SDK 10.61.0), genAI capture is on (default; not disabled via `dataCollection: { genAI: { inputs: false } }`), and a conversation ID is set via `Sentry.setConversationId()` |
+| Conversations view empty | Ensure `streamGenAiSpans` is enabled (default since SDK 10.61.0) and genAI capture is on. For Eve or Flue, confirm the framework emitted `gen_ai.conversation.id`; for integrations that do not infer one, call `Sentry.setConversationId()` |
 | User column shows “Unknown” | Call `Sentry.setUser()` once per request or session |

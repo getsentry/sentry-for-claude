@@ -33,54 +33,70 @@ Decide what you’re actually doing; it gates how much you run.
 
 | Scope | When | What runs |
 | --- | --- | --- |
-| **First error** | Brand-new install, no Sentry yet | Provision + install + the SDK’s recommended default `init` (**errors + tracing**), then verify a real error. Defer *additional* signals (logging, profiling, replay, metrics, …). |
+| **First error** | Brand-new install, no Sentry yet | Detect setup ownership, then provision and install the selected base. Verify a real error when the path supports it; disclose any trace-only limitation. Defer *additional* signals (logging, profiling, replay, metrics, …). |
 | **Add a signal** | Sentry already installed; user wants one more signal | Skip provisioning/install. Jump straight to that one signal. |
-| **Full setup** | “Set it up properly / sensible defaults” | Run first error (which already establishes errors + tracing), then propose the rest of a baseline (releases, source maps, and any signals that fit the app) and add what the user accepts. |
-
-**Framework-owned AI setup exception:** if the user explicitly asks to instrument Eve or
-Flue and Sentry is not installed, do not run the generic first-error SDK setup first.
-Provision a project if needed, then use the detected platform’s `ai-monitoring.md`:
-Eve’s instrumentation owns its OTLP exporter, while Flue’s blueprint installs and
-configures the Sentry SDK. Adding a generic provider integration first can duplicate
-their AI spans. State that Eve’s official path sends traces only; ask whether separate
-error or log monitoring is also required.
+| **Full setup** | “Set it up properly / sensible defaults” | Run the ownership-aware base setup, then propose the rest of a baseline (releases, source maps, and any signals that fit the app) and add what the user accepts. |
 
 Never over-instrument — wiring up logging, session replay, profiling, metrics, etc.
 upfront when the user only asked to get Sentry working is doing more than they asked
 for. (The base `init` includes tracing — that’s the SDK’s recommended default, not
 over-instrumentation.)
 
-## Step 2 — Get errors working first (fresh installs)
+## Step 2 — Detect setup ownership and install
 
-For **first-error** and **full setup** scope — there’s no Sentry yet, so the project
-needs a base install before any additional signal.
-**Run [`references/first-error-setup.md`](references/first-error-setup.md) end to end**
-— the shared spine: detect the platform, provision a project, install the SDK’s
-recommended default `init` (errors + tracing — take the reference’s default as written,
-don’t pare it back to errors-only), verify a real error lands, push to production, and
-confirm stack traces will be readable.
-You’ll also want to immediately read
-[`references/sdks/index.md`](references/sdks/index.md) and
-[`references/concepts/errors.md`](references/concepts/errors.md) so you have the catalog
-and the baseline-signal context in hand before you start.
+For **first-error** and **full setup** scope, start with **Step 1 only** of
+[`references/first-error-setup.md`](references/first-error-setup.md): detect and confirm
+the platform before choosing an installer.
+Open the platform `index.md`, inspect package manifests, and inspect existing Sentry,
+OpenTelemetry, and framework instrumentation.
+Then apply this ownership gate based on what the project contains — not how the user
+phrased the request:
+
+- **Eve:** when `eve` or its generated `agent/instrumentation.ts` is present, ask
+  whether the user wants Eve’s official trace-only OTLP path or broader Sentry SDK
+  coverage for errors and logs.
+  Do not install either path before they choose.
+  For trace-only, provision the project, follow the platform `ai-monitoring.md`, and
+  skip the generic SDK installer.
+  For broader coverage, run the platform SDK setup and ask whether to retain Eve’s
+  exporter for AI traces.
+  If retained, disable the SDK’s provider AI integration so Eve remains the only AI span
+  producer; otherwise, do not install the exporter.
+- **Flue:** when `@flue/*` or a generated Flue Sentry bridge is present, provision the
+  project and use the platform `ai-monitoring.md` blueprint before broader
+  instrumentation. Apply it when the bridge is missing; otherwise preserve and modify the
+  generated setup in place.
+  Treat that SDK configuration as the base install, then add only signals it does not
+  already cover. Do not run the generic SDK installer or restore provider integrations
+  that the blueprint removes.
+- **Existing instrumentation:** modify the existing setup in place.
+  Never create a second Sentry initialization, OTLP exporter, or AI span producer.
+
+When neither framework owns setup, continue with **Steps 2 onward** of
+`first-error-setup.md`: provision a project, install the SDK’s recommended default
+`init` (errors + tracing), verify a real error, push to production, and confirm stack
+traces will be readable.
+Also read [`references/concepts/errors.md`](references/concepts/errors.md) for the
+baseline-signal context.
 
 For **add a signal** scope, Sentry is already installed with a DSN — skip this step
 entirely and go to Step 3.
 
-Under **first-error** scope you’re done after the spine.
-Under **full setup**, continue: the spine already set up errors + tracing and flagged
-source maps, so propose the rest of a solid baseline (releases, plus any signals that
-fit the app) and wire what the user accepts via Step 3. If they take the stack-trace
-half, [`references/debug-artifacts/index.md`](references/debug-artifacts/index.md)
-carries the per-platform artifact upload — source maps for JS, dSYM/ProGuard/R8 for
-native and mobile.
+Under **first-error** scope you’re done after the selected setup and its verification.
+Under **full setup**, continue from the signals the selected setup already covers:
+propose the rest of a solid baseline (releases, plus any signals that fit the app) and
+wire what the user accepts via Step 3. If they take the stack-trace half,
+[`references/debug-artifacts/index.md`](references/debug-artifacts/index.md) carries the
+per-platform artifact upload — source maps for JS, dSYM/ProGuard/R8 for native and
+mobile.
 
 ## Step 3 — Wire the signal(s)
 
 If you came straight here under **add a signal** scope, you haven’t detected the
 platform yet — read [`references/sdks/index.md`](references/sdks/index.md), identify the
 platform from project files, **confirm with the user**, and open that platform’s
-`references/sdks/<slug>/index.md`. (Fresh installs already did this in the spine.)
+`references/sdks/<slug>/index.md`. (Fresh installs already did this during Step 2
+detection.)
 
 For each signal the scope calls for:
 
