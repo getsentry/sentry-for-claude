@@ -59,14 +59,19 @@ project state — not request wording:
 - **Eve:** when `eve` or its generated `agent/instrumentation.ts` is present, inspect
   the agent runtime for both Eve’s exporter and `@sentry/node`. Treat the Node SDK’s
   default `VercelAI` integration as an existing AI span producer when tracing is on,
-  even if it is absent from `Sentry.init`. Ask the user to choose one setup for that
-  runtime: Eve’s official trace-only OTLP exporter, or the Node SDK for broader error,
-  log, and trace coverage.
-  For trace-only, remove any Node SDK initialization from the agent runtime before
-  installing or retaining Eve’s exporter.
-  For broader coverage, use the platform SDK setup and remove or do not install Eve’s
-  exporter. Do not generate a combined setup; the documented Eve path does not coordinate
-  its OpenTelemetry provider with the Node SDK.
+  even if it is absent from `Sentry.init`. Ask the user to choose one owner for that
+  runtime, then execute that route end to end:
+  - **Eve OTLP (trace-only):** remove any Node SDK initialization from the agent
+    runtime. For a fresh setup, run Step 2 of `first-error-setup.md` to select or create
+    the Sentry project. Then follow the detected platform’s `ai-monitoring.md` Eve
+    section through `eve add instrumentation/sentry`, configuration, and AI-span
+    verification. Do not continue to the generic SDK install or error verification; this
+    route cannot send errors or logs.
+  - **Node SDK (broader coverage):** remove or do not install Eve’s exporter.
+    For a fresh setup, continue with Steps 2 onward of `first-error-setup.md` using the
+    platform SDK. For add-a-signal, preserve the existing Node SDK and continue to the
+    signal-wiring step. Do not generate a combined setup; the documented Eve path does
+    not coordinate its OpenTelemetry provider with the Node SDK.
 - **Flue:** when `@flue/*` or a generated Flue Sentry bridge is present, provision the
   project and use the platform `ai-monitoring.md` blueprint before broader
   instrumentation. Apply it when the bridge is missing; otherwise preserve and modify the
@@ -77,8 +82,8 @@ project state — not request wording:
 - **Existing instrumentation:** modify the existing setup in place.
   Never create a second Sentry initialization, OTLP exporter, or AI span producer.
 
-For **add a signal**, stop after this gate and preserve the existing base install; go to
-Step 3 for the requested signal.
+For **add a signal**, after completing any framework-owned handoff above, preserve the
+selected base install and go to Step 3 for the requested signal.
 
 For **first-error** and **full setup**, when neither framework owns setup, continue with
 **Steps 2 onward** of `first-error-setup.md`: provision a project, install the SDK’s
@@ -90,7 +95,9 @@ baseline-signal context.
 Under **first-error** scope you’re done after the selected setup and its verification.
 Under **full setup**, continue from the signals the selected setup already covers:
 propose the rest of a solid baseline (releases, plus any signals that fit the app) and
-wire what the user accepts via Step 3. If they take the stack-trace half,
+wire what the user accepts via Step 3. Respect the selected setup owner; for Eve OTLP,
+do not add Node SDK signals unless the user chooses to switch routes.
+If they take the stack-trace half,
 [`references/debug-artifacts/index.md`](references/debug-artifacts/index.md) carries the
 per-platform artifact upload — source maps for JS, dSYM/ProGuard/R8 for native and
 mobile.
