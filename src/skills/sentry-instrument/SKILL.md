@@ -34,7 +34,7 @@ Decide what you’re actually doing; it gates how much you run.
 | Scope | When | What runs |
 | --- | --- | --- |
 | **First error** | Brand-new install, no Sentry yet | Detect setup ownership, then provision and install the selected base. Verify a real error when the path supports it; disclose any trace-only limitation. Defer *additional* signals (logging, profiling, replay, metrics, …). |
-| **Add a signal** | Sentry already installed; user wants one more signal | Skip provisioning/install. Jump straight to that one signal. |
+| **Add a signal** | Sentry already installed; user wants one more signal | Preserve the base install, run setup-ownership detection, then wire only that signal. |
 | **Full setup** | “Set it up properly / sensible defaults” | Run the ownership-aware base setup, then propose the rest of a baseline (releases, source maps, and any signals that fit the app) and add what the user accepts. |
 
 Never over-instrument — wiring up logging, session replay, profiling, metrics, etc.
@@ -44,24 +44,29 @@ over-instrumentation.)
 
 ## Step 2 — Detect setup ownership and install
 
-For **first-error** and **full setup** scope, start with **Step 1 only** of
-[`references/first-error-setup.md`](references/first-error-setup.md): detect and confirm
-the platform before choosing an installer.
-Open the platform `index.md`, inspect package manifests, and inspect existing Sentry,
-OpenTelemetry, and framework instrumentation.
-Then apply this ownership gate based on what the project contains — not how the user
-phrased the request:
+Run setup-ownership detection for **every scope**, including add-a-signal:
 
-- **Eve:** when `eve` or its generated `agent/instrumentation.ts` is present, ask
-  whether the user wants Eve’s official trace-only OTLP path or broader Sentry SDK
-  coverage for errors and logs.
-  Do not install either path before they choose.
-  For trace-only, provision the project, follow the platform `ai-monitoring.md`, and
-  skip the generic SDK installer.
-  For broader coverage, run the platform SDK setup and ask whether to retain Eve’s
-  exporter for AI traces.
-  If retained, disable the SDK’s provider AI integration so Eve remains the only AI span
-  producer; otherwise, do not install the exporter.
+- For **first-error** and **full setup**, run **Step 1 only** of
+  [`references/first-error-setup.md`](references/first-error-setup.md).
+- For **add a signal**, read [`references/sdks/index.md`](references/sdks/index.md) and
+  detect and confirm the platform without reinstalling Sentry.
+
+Open the platform `index.md`; inspect package manifests and existing Sentry,
+OpenTelemetry, and framework instrumentation.
+Before a fresh install or any AI-monitoring change, apply this ownership gate based on
+project state — not request wording:
+
+- **Eve:** when `eve` or its generated `agent/instrumentation.ts` is present, inspect
+  the agent runtime for both Eve’s exporter and `@sentry/node`. Treat the Node SDK’s
+  default `VercelAI` integration as an existing AI span producer when tracing is on,
+  even if it is absent from `Sentry.init`. Ask the user to choose one setup for that
+  runtime: Eve’s official trace-only OTLP exporter, or the Node SDK for broader error,
+  log, and trace coverage.
+  For trace-only, remove any Node SDK initialization from the agent runtime before
+  installing or retaining Eve’s exporter.
+  For broader coverage, use the platform SDK setup and remove or do not install Eve’s
+  exporter. Do not generate a combined setup; the documented Eve path does not coordinate
+  its OpenTelemetry provider with the Node SDK.
 - **Flue:** when `@flue/*` or a generated Flue Sentry bridge is present, provision the
   project and use the platform `ai-monitoring.md` blueprint before broader
   instrumentation. Apply it when the bridge is missing; otherwise preserve and modify the
@@ -72,15 +77,15 @@ phrased the request:
 - **Existing instrumentation:** modify the existing setup in place.
   Never create a second Sentry initialization, OTLP exporter, or AI span producer.
 
-When neither framework owns setup, continue with **Steps 2 onward** of
-`first-error-setup.md`: provision a project, install the SDK’s recommended default
-`init` (errors + tracing), verify a real error, push to production, and confirm stack
-traces will be readable.
+For **add a signal**, stop after this gate and preserve the existing base install; go to
+Step 3 for the requested signal.
+
+For **first-error** and **full setup**, when neither framework owns setup, continue with
+**Steps 2 onward** of `first-error-setup.md`: provision a project, install the SDK’s
+recommended default `init` (errors + tracing), verify a real error, push to production,
+and confirm stack traces will be readable.
 Also read [`references/concepts/errors.md`](references/concepts/errors.md) for the
 baseline-signal context.
-
-For **add a signal** scope, Sentry is already installed with a DSN — skip this step
-entirely and go to Step 3.
 
 Under **first-error** scope you’re done after the selected setup and its verification.
 Under **full setup**, continue from the signals the selected setup already covers:
@@ -92,11 +97,7 @@ mobile.
 
 ## Step 3 — Wire the signal(s)
 
-If you came straight here under **add a signal** scope, you haven’t detected the
-platform yet — read [`references/sdks/index.md`](references/sdks/index.md), identify the
-platform from project files, **confirm with the user**, and open that platform’s
-`references/sdks/<slug>/index.md`. (Fresh installs already did this during Step 2
-detection.)
+Use the platform confirmed during Step 2 and its `references/sdks/<slug>/index.md`.
 
 For each signal the scope calls for:
 
