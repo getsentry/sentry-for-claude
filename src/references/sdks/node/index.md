@@ -53,7 +53,7 @@ cat package.json 2>/dev/null | grep -E '"winston"|"pino"|"bunyan"'
 cat package.json 2>/dev/null | grep -E '"node-cron"|"cron"|"agenda"|"bull"|"bullmq"'
 
 # Detect AI / LLM usage
-cat package.json 2>/dev/null | grep -E '"openai"|"@anthropic-ai"|"@langchain"|"@vercel/ai"|"@google/generative-ai"'
+cat package.json 2>/dev/null | grep -E '"openai"|"@anthropic-ai"|"@langchain"|"ai"|"@google/genai"|"@google/generative-ai"|"eve"|"@flue/'
 
 # Detect OpenTelemetry tracing
 cat package.json 2>/dev/null | grep -E '"@opentelemetry/sdk-node"|"@opentelemetry/sdk-trace-node"|"@opentelemetry/sdk-trace-base"'
@@ -76,7 +76,7 @@ cat package.json 2>/dev/null | grep -E '"react"|"vue"|"svelte"|"next"'
 | `instrument.js` / `instrument.mjs` already exists? | Merge into it rather than overwrite |
 | Logging library detected? | Recommend Sentry Logs |
 | Cron / job scheduler detected? | Recommend Crons monitoring |
-| AI library detected? | Recommend AI Monitoring |
+| AI library or agent framework detected? | Recommend AI Monitoring; on Node.js, use Eve’s instrumentation or Flue’s blueprint instead of adding a second provider integration when either framework is present |
 | OpenTelemetry tracing detected? | Use OTLP path instead of native tracing |
 | Companion frontend found? | Trigger Phase 4 cross-link |
 
@@ -103,8 +103,8 @@ Don’t ask open-ended questions — lead with a proposal:
   `winston`/`pino`/`bunyan` or log search is needed
 - ⚡ **Profiling** — continuous CPU profiling (Node.js only; not available on Bun or
   Deno); **not available with OTLP path**
-- ⚡ **AI Monitoring** — OpenAI, Anthropic, LangChain, Vercel AI SDK; recommend when
-  AI/LLM calls detected
+- ⚡ **AI Monitoring** — OpenAI, Anthropic, LangChain, Vercel AI SDK, and, on Node.js,
+  Eve and Flue; recommend when AI/LLM calls or agent frameworks are detected
 - ⚡ **Crons** — detect missed or failed scheduled jobs; recommend when node-cron, Bull,
   or Agenda is detected
 - ⚡ **Metrics** — custom counters, gauges, distributions; recommend when custom KPIs
@@ -121,7 +121,7 @@ Don’t ask open-ended questions — lead with a proposal:
 | Tracing | **Always for server apps** — HTTP spans + DB spans are high-value; **skip if OTel tracing detected** |
 | Logging | App uses winston, pino, bunyan, or needs log-to-trace correlation |
 | Profiling | **Node.js only** — performance-critical service; native addon compatible; **skip if OTel tracing detected** (requires `tracesSampleRate`, incompatible with OTLP) |
-| AI Monitoring | App calls OpenAI, Anthropic, LangChain, Vercel AI, or Google GenAI |
+| AI Monitoring | App calls OpenAI, Anthropic, LangChain, Vercel AI, or Google GenAI; on Node.js, also when it uses Eve or Flue |
 | Crons | App uses node-cron, Bull, BullMQ, Agenda, or any scheduled task pattern |
 | Metrics | App needs custom counters, gauges, or histograms |
 | Runtime Metrics | Any Node.js or Bun service wanting automatic memory/CPU/event-loop visibility |
@@ -695,7 +695,7 @@ Load the corresponding reference file and follow its steps:
 | Metrics | `./metrics.md` | Custom counters, gauges, distributions |
 | Runtime Metrics | See inline below | Automatic memory, CPU, and event loop metrics for Node.js and Bun |
 | Crons | `./crons.md` | Scheduled job monitoring, node-cron, Bull, Agenda, Deno.cron |
-| AI Monitoring | `./ai-monitoring.md` | OpenAI, Anthropic, LangChain, Vercel AI, Google GenAI |
+| AI Monitoring | `./ai-monitoring.md` | OpenAI, Anthropic, LangChain, Vercel AI, or Google GenAI; Eve and Flue on Node.js only |
 
 For each feature: read the reference file, follow its steps exactly, and verify before
 moving on.

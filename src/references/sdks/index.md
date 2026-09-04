@@ -20,7 +20,7 @@ A quick orientation so you know which signal file to open.
 | **Cron Monitoring** | Check-in code for scheduled/recurring jobs. |
 | **Session Replay** | A video-like reproduction of a user’s session (browser and mobile) leading up to an error. |
 | **User Feedback** | A widget or API to collect user-submitted reports, optionally attached to an event. |
-| **AI / LLM Monitoring** | Spans, token usage, and tool calls for LLM SDKs (OpenAI, Anthropic, Vercel AI, LangChain, Google GenAI, Laravel AI). |
+| **AI / LLM Monitoring** | Spans, token usage, and tool calls for LLM and agent frameworks (OpenAI, Anthropic, Vercel AI, LangChain, Google GenAI, Laravel AI, Eve, Flue, the Cloudflare Agents SDK, and Workers AI). |
 
 ## How the references are structured
 

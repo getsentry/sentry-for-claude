@@ -1,9 +1,9 @@
 # AI / LLM Monitoring (Agent Tracing) — Sentry Cloudflare SDK
 
 > Minimum SDK: `@sentry/cloudflare` >=10.61.0 (Gen AI span streaming on by default).
-> Workers AI (`env.AI`) auto-instrumentation: v10.67.0+. Vite plugin build-time
-> instrumentation: v10.68.0+ (experimental).
-> Docs:
+> Workers AI (`env.AI`) auto-instrumentation: v10.67.0+. Cloudflare Agents SDK
+> instrumentation: v10.69.0+. Vite plugin build-time instrumentation: v10.68.0+
+> (experimental). Flue’s Sentry blueprint requires `@sentry/cloudflare` >=10.64.0. Docs:
 > [docs.sentry.io/platforms/javascript/guides/cloudflare/agent-tracing/](https://docs.sentry.io/platforms/javascript/guides/cloudflare/agent-tracing/)
 
 Sentry Agent Tracing captures `gen_ai` spans for LLM calls, agent runs, and tool
@@ -12,24 +12,52 @@ multi-turn chats in Conversations.
 
 * * *
 
-## The Cloudflare Difference
+## Compose the Cloudflare Layers
 
 The Cloudflare Workers runtime (`workerd`) does **not support runtime monkey-patching**,
-so the automatic AI instrumentation that Node.js gets for free does not happen here.
-On Cloudflare there are three ways to get `gen_ai` spans, in order of preference:
+so Cloudflare AI setup composes up to three layers.
+Detect each layer independently and apply every layer the app uses.
+An Agents app that calls `env.AI.run(...)`, for example, needs both the Agents host
+layer and the Workers AI model layer.
 
-| Path | Covers | How it works |
-| --- | --- | --- |
-| **1. Workers AI binding** (automatic) | `env.AI.run(...)` | `withSentry` wraps `env` — nothing to do (v10.67.0+) |
-| **2. Vite plugin** (build-time, experimental) | `openai`, `@anthropic-ai/sdk`, `@google/genai`, `ai` (Vercel AI SDK) | `sentryCloudflareVitePlugin` injects `diagnostics_channel` calls into the bundled packages at build time (v10.68.0+) |
-| **3. Manual client wrapping** | OpenAI, Anthropic, Google Gen AI, LangChain, LangGraph | Wrap each client/graph with the matching `Sentry.instrument*` helper |
+### 1. Host or framework
 
-LangChain and LangGraph are **not** covered by the Vite plugin’s channel injection —
-they always require the manual helpers (path 3).
+| Host | Setup |
+| --- | --- |
+| Normal Worker | Wrap the handler with `withSentry` |
+| Cloudflare Agents SDK (`Agent`, `AIChatAgent`, `McpAgent`) | Wrap the class with `instrumentAgentWithSentry` (v10.69.0+) |
+| Flue | Run `flue add tooling sentry`; its blueprint owns both the host and Flue model instrumentation |
+
+### 2. Model calls
+
+Select the mechanism that covers each model client.
+These layers normally compose; the exception is Flue-generated model calls, because its
+blueprint already emits those spans.
+Do not add Vite, manual, or provider instrumentation to those same calls.
+
+| Model client | Setup |
+| --- | --- |
+| Workers AI binding (`env.AI.run(...)`) | Automatic when the Sentry host wrapper instruments `env` (v10.67.0+) |
+| `openai`, `@anthropic-ai/sdk`, `@google/genai`, `ai` | Experimental Vite build-time injection (v10.68.0+) or the matching manual wrapper |
+| LangChain and LangGraph | Manual helpers; Vite channel injection does not cover them |
+| Other providers | Manual `gen_ai.*` spans |
+
+### 3. Conversation tracking
+
+Cloudflare Agents sets the conversation ID automatically and Flue emits its persisted
+conversation ID. For other chat-style apps, call `Sentry.setConversationId(...)` before
+model or tool calls.
+See [Tracking Conversations](#tracking-conversations) for scope, user attribution, and
+reset behavior.
 
 * * *
 
 ## Prerequisites
+
+The standard configuration below applies to a normal Worker host.
+For Cloudflare Agents, put the same options in the `instrumentAgentWithSentry` callback
+instead. For Flue, skip this configuration and use the blueprint, which owns its Sentry
+setup.
 
 Tracing must be enabled — AI spans require an active trace.
 Pass `dataCollection` so generative AI content (prompts and responses) is collected
@@ -71,7 +99,9 @@ Per-integration `recordInputs` / `recordOutputs` options override the global def
 
 | AI stack | Supported versions | Instrumentation | Min SDK |
 | --- | --- | --- | --- |
-| Workers AI (`env.AI`) | — | Automatic via `withSentry` | 10.67.0 |
+| Workers AI (`env.AI`) | — | Automatic through an instrumented `env` | 10.67.0 |
+| Cloudflare Agents SDK (`agents`, `@cloudflare/ai-chat`) | — | `instrumentAgentWithSentry` or Vite auto-instrumentation | 10.69.0 |
+| Flue (`@flue/*`) | Current | `flue add tooling sentry` | 10.64.0 |
 | OpenAI (`openai`) | `>=4.0.0 <7` | Vite plugin **or** `instrumentOpenAiClient` | 10.68.0 / — |
 | Anthropic (`@anthropic-ai/sdk`) | `>=0.19.2 <1.0.0` | Vite plugin **or** `instrumentAnthropicAiClient` | 10.68.0 / — |
 | Google Gen AI (`@google/genai`) | `>=0.10.0 <2` | Vite plugin **or** `instrumentGoogleGenAIClient` | 10.68.0 / — |
@@ -82,11 +112,16 @@ Per-integration `recordInputs` / `recordOutputs` options override the global def
 
 * * *
 
-## Path 1: Workers AI (Automatic)
+## Model Layer: Workers AI (Automatic)
 
-The Workers AI binding is auto-instrumented by `withSentry` (v10.67.0+). Calls to
-`env.AI.run(...)` create `gen_ai` spans capturing model, request parameters, and token
-usage — as long as your handler uses the `env` the SDK passes in:
+The Workers AI binding is auto-instrumented through the `env` supplied by the selected
+Sentry host wrapper (v10.67.0+). Calls to `env.AI.run(...)` create `gen_ai` spans
+capturing model, request parameters, and token usage.
+The example below uses a normal Worker; in an Agents app, use
+`instrumentAgentWithSentry` as the host layer instead of adding a second outer wrapper.
+See the
+[Workers AI guide](https://docs.sentry.io/platforms/javascript/guides/cloudflare/features/workers-ai/)
+for response and streaming limitations.
 
 ```typescript
 import * as Sentry from "@sentry/cloudflare";
@@ -136,7 +171,54 @@ attribution, and the Agents SDK pattern.
 
 * * *
 
-## Path 2: Vite Plugin (Build-Time Instrumentation)
+## Host Layer: Cloudflare Agents SDK
+
+When `agents`, `@cloudflare/ai-chat`, or `agents/mcp` is present, follow the dedicated
+[Cloudflare Agents SDK setup](./durable-objects.md#cloudflare-agents-sdk-instrumentagentwithsentry).
+It covers class wrapping, Vite auto-instrumentation, and Durable Object and RPC
+behavior. Combine this host layer with Workers AI, Vite injection, or a supported manual
+client wrapper for the model layer.
+See
+[Cloudflare Agents SDK conversation IDs](#cloudflare-agents-sdk-automatic-conversation-ids-v10690)
+for grouping and reset behavior.
+
+## Host and Model Layers: Flue Blueprint
+
+When Flue is present, use its official Sentry blueprint.
+It generates the Cloudflare Durable Object wrapper and Flue OpenTelemetry bridge, so do
+not add separate provider integrations that would duplicate AI spans.
+See the
+[Flue guide](https://docs.sentry.io/platforms/javascript/guides/cloudflare/agent-tracing/flue/)
+for the generated extension and correlation attributes.
+
+```bash
+flue add tooling sentry
+```
+
+Store the DSN as a Worker secret and set the remaining values in `wrangler.jsonc`:
+
+```bash
+wrangler secret put SENTRY_DSN
+```
+
+```json
+{
+  "vars": {
+    "SENTRY_TRACES_SAMPLE_RATE": "1",
+    "SENTRY_ENVIRONMENT": "production"
+  }
+}
+```
+
+Prompt and response content is off by default.
+After the user approves capture, set `SENTRY_AI_RECORD_INPUTS` and
+`SENTRY_AI_RECORD_OUTPUTS` to `"true"`. The blueprint captures Flue GenAI traces,
+correlated logs, and terminal failures as issues.
+It also emits Flue’s persisted conversation ID as `gen_ai.conversation.id`, so do not
+replace it with a per-request ID. Verify the wrapped agent under `wrangler dev`; errors
+and logs without traces usually mean `SENTRY_TRACES_SAMPLE_RATE` is still `0`.
+
+## Model Layer: Vite Plugin (Build-Time Instrumentation)
 
 > **Experimental** (v10.68.0+): options and behavior may change or be removed in any
 > release. Verify against the
@@ -260,7 +342,7 @@ bundled dependencies.
 
 * * *
 
-## Path 3: Manual Client Wrapping
+## Model Layer: Manual Client Wrapping
 
 Use these when you don’t build with Vite, or for LangChain/LangGraph (which the Vite
 plugin doesn’t cover).
@@ -640,6 +722,8 @@ async fetch(request, env, ctx) {
 | Vercel AI SDK v7 not working | Default entrypoint doesn’t support v7 | Use `@sentry/cloudflare/nodejs_compat` (SDK >=10.64.0) — see `./nodejs-compat.md` |
 | Workers AI calls not traced | `env` accessed outside the wrapped handler, or SDK < 10.67.0 | Use the `env` passed into the handler; upgrade the SDK |
 | Duplicate spans for AI calls made through the Vercel AI SDK (`workers-ai-provider`) | SDK < 10.69.0: both the Vercel AI integration and the Workers AI binding instrumentation recorded the same call | Upgrade to 10.69.0+ — the binding instrumentation now skips calls the Vercel AI integration is already recording |
+| Flue logs and issues arrive but traces do not | `SENTRY_TRACES_SAMPLE_RATE` is missing or `0` | Set it above `0`; use `1` while verifying |
+| Flue token or cost totals doubled | A provider integration was added alongside Flue’s OpenTelemetry spans | Keep the provider integrations removed as generated by the Flue blueprint |
 | LangChain/LangGraph not traced | Expecting Vite plugin coverage | Not covered by channel injection — use `createLangChainCallbackHandler` / `instrumentLangGraph` |
 | Agents SDK chats not grouping | Agent wrapped with `instrumentDurableObjectWithSentry`, or SDK < 10.69.0 | Wrap with `instrumentAgentWithSentry` (v10.69.0+) for automatic conversation IDs, or call `setConversationId` manually in `onChatMessage` |
 | Agents SDK conversation split unexpectedly | Chat was cleared — `clearHistory()` (or anything emitting `message:clear`) rotates to a fresh conversation ID by design | Expected: a reset chat groups as a new conversation |

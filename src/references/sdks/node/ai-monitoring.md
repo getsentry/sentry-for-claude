@@ -1,10 +1,17 @@
 # AI Monitoring - Sentry Node.js SDK
 
 > Minimum SDK: `@sentry/node` >=10.61.0 (Gen AI span streaming is on by default at this
-> version). OpenAI, Anthropic, LangChain, LangGraph, Google GenAI, Vercel AI SDK
-> auto-instrument and are available since 10.53.0.
+> version). OpenAI, Anthropic, LangChain, LangGraph, Google GenAI, and Vercel AI SDK
+> auto-instrument and are available since 10.53.0. Flue’s Sentry blueprint requires
+> `@sentry/node` >=10.64.0. Eve uses its own OpenTelemetry exporter instead of the
+> Sentry Node SDK.
 
 ## Prerequisites
+
+This generic `Sentry.init` example applies to the provider integrations below.
+Flue’s blueprint owns its SDK setup, so skip the example for Flue.
+For Eve, choose between its trace-only exporter and the broader Node SDK setup; do not
+initialize both in the same agent runtime.
 
 Tracing must be enabled - AI spans require an active trace:
 
@@ -31,6 +38,8 @@ Sentry.init({
 | LangChain (`@langchain/core`) | 0.1.0+ | Yes | Stable |
 | LangGraph (`@langchain/langgraph`) | 0.1.0+ | Yes | Stable |
 | Google GenAI (`@google/genai`) | 1.0+ | Yes | Stable |
+| Eve (`eve`, Node.js only) | Current | No — run `eve add instrumentation/sentry` | Supported |
+| Flue (`@flue/*`, Node.js only) | Current | No — run `flue add tooling sentry` | Supported |
 
 *Vercel AI SDK requires `experimental_telemetry: { isEnabled: true }` on every call.
 
@@ -96,6 +105,87 @@ await generateText({
   experimental_telemetry: { isEnabled: true, recordInputs: true, recordOutputs: true },
 });
 ```
+
+### Eve (official OTLP instrumentation)
+
+Eve’s official Sentry instrumentation exports OpenTelemetry GenAI spans directly to
+Sentry. Choose one setup for the agent runtime:
+
+- **Eve OTLP exporter:** traces only.
+  If `@sentry/node` is already initialized in that runtime, remove it before adding the
+  exporter.
+- **Sentry Node SDK:** broader error, log, and trace coverage.
+  Keep the generic Node SDK setup above and do not install, or remove, Eve’s exporter.
+
+Do not combine these documented setups.
+With tracing enabled, `@sentry/node` includes its `VercelAI` integration by default even
+when `vercelAIIntegration()` is absent from the configuration, which creates a second AI
+span producer. Both setups also configure OpenTelemetry; coordinating custom
+OpenTelemetry ownership requires a separate advanced setup not covered by Eve’s
+integration guide. See the
+[Eve guide](https://docs.sentry.io/platforms/javascript/guides/node/agent-tracing/eve/)
+for the generated exporter’s full shape.
+
+For the Eve OTLP choice, add its instrumentation:
+
+```bash
+eve add instrumentation/sentry
+```
+
+The command creates `agent/instrumentation.ts` and installs its OpenTelemetry packages.
+Set the project-specific OTLP traces endpoint and public key from **Project Settings >
+Client Keys (DSN)**:
+
+```bash
+SENTRY_OTLP_TRACES_ENDPOINT="___OTLP_TRACES_URL___"
+SENTRY_PUBLIC_KEY="___PUBLIC_KEY___"
+```
+
+Eve records span metadata by default.
+After the user approves prompt and response capture, add `recordInputs: true` and
+`recordOutputs: true` to the generated `defineInstrumentation` object.
+Preserve its existing `setup` callback and exporter.
+Eve emits its session ID as `gen_ai.conversation.id`; do not replace it with a
+per-request ID.
+
+Eve’s OTLP path sends traces only.
+It does not create Sentry issues or logs because Sentry’s OTLP intake does not accept
+span events. Verify by running a tool-using turn and checking Agent Tracing for
+`invoke_agent`, `chat`, and `execute_tool` spans.
+
+### Flue (official Sentry blueprint)
+
+On Node.js, when a project uses Flue, run its official blueprint instead of hand-writing
+provider integrations.
+The blueprint installs `@sentry/node` and `@flue/opentelemetry`, creates a `sentry.ts`
+module, and connects Flue traces, logs, and terminal failures to Sentry.
+See the
+[Flue guide](https://docs.sentry.io/platforms/javascript/guides/node/agent-tracing/flue/)
+for the generated bridge and configuration details.
+
+```bash
+flue add tooling sentry
+```
+
+Configure the generated setup through environment variables:
+
+```bash
+SENTRY_DSN="___PUBLIC_DSN___"
+SENTRY_TRACES_SAMPLE_RATE=1
+# Enable only after the user approves sending prompt and response content:
+# SENTRY_AI_RECORD_INPUTS=true
+# SENTRY_AI_RECORD_OUTPUTS=true
+```
+
+`SENTRY_TRACES_SAMPLE_RATE` defaults to `0`, so errors and logs can arrive while AI
+traces remain absent.
+The blueprint removes Sentry’s provider integrations because Flue already emits the
+model spans; do not add them back or token and cost totals will be doubled.
+Flue emits its persisted conversation ID as `gen_ai.conversation.id`; do not replace it
+with a per-request ID. Verify a tool-using prompt produces `invoke_agent`, `chat`, and
+`execute_tool` spans.
+Then emit one Flue log and trigger a terminal failure to confirm the correlated log and
+one Sentry issue.
 
 ### Browser / Next.js client-side (manual wrapping required)
 
@@ -238,6 +328,8 @@ transactions while sampling other traffic at a lower rate.
 ## Conversation Tracking
 
 Link AI spans across turns into a chat-style timeline at **Explore > Conversations**.
+Eve and Flue emit their framework-owned conversation IDs automatically.
+For provider integrations that do not infer an ID, set one explicitly as shown below.
 
 **Prerequisites:** `streamGenAiSpans` defaults to `true` (SDK >=10.61.0, so AI spans
 stream as standalone items) and genAI input/output capture enabled (on by default via
@@ -286,9 +378,13 @@ Sentry.setUser({ id: "user_123", email: "jane@example.com", username: "jane" });
 | No AI spans appearing | Verify `tracesSampleRate > 0`; check SDK >=10.61.0 |
 | Token counts missing in streams | Add `stream_options: { include_usage: true }` (OpenAI) |
 | Vercel AI spans not tracked | Add `experimental_telemetry: { isEnabled: true }` per call |
+| Eve traces missing | Use the project-specific OTLP traces endpoint and the public key only, not the full DSN |
+| Eve token or cost totals doubled | Eve’s exporter and `@sentry/node` are both active in the agent runtime. Keep one setup: remove the Node initialization for Eve’s trace-only path, or remove Eve’s exporter for broader Node SDK coverage |
+| Flue logs and issues arrive but traces do not | Set `SENTRY_TRACES_SAMPLE_RATE` above `0` |
+| Flue token or cost totals doubled | Keep the provider integrations removed as generated by the Flue blueprint |
 | Browser OpenAI not traced | Use `Sentry.instrumentOpenAiClient()` - auto-instrumentation is server-only |
 | Prompts not captured | genAI capture is on by default; ensure you haven’t set `dataCollection: { genAI: { inputs: false } }`, or pass `recordInputs: true` explicitly |
 | AI Agents Dashboard empty | Ensure traces are being sent; check DSN and `tracesSampleRate` |
 | Wrong cost calculations | Cached/reasoning tokens are subsets of totals, not additions |
-| Conversations view empty | Ensure `streamGenAiSpans` is enabled (default since SDK 10.61.0), genAI capture is on (default; not disabled via `dataCollection: { genAI: { inputs: false } }`), and a conversation ID is set via `Sentry.setConversationId()` |
+| Conversations view empty | Ensure `streamGenAiSpans` is enabled (default since SDK 10.61.0) and genAI capture is on. For Eve or Flue, confirm the framework emitted `gen_ai.conversation.id`; for integrations that do not infer one, call `Sentry.setConversationId()` |
 | User column shows “Unknown” | Call `Sentry.setUser()` once per request or session |
