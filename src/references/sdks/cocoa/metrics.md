@@ -1,8 +1,8 @@
 # Metrics — Sentry Cocoa SDK
 
-> Minimum SDK: experimental in v9.4.0+, generally available in v9.12.0+ Swift only;
+> Minimum SDK: `sentry-cocoa` v9.27.0+. Swift only.
 > Objective-C metrics API is not currently available.
-> Metrics are enabled by default in v9.12.0+.
+> Metrics are enabled by default.
 
 Use metrics for aggregate counters, gauges, and distributions that should not create
 Sentry issues. Do not duplicate automatic tracing, app hangs, MetricKit diagnostics, or
@@ -12,25 +12,14 @@ error events.
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `enableMetrics` | `Bool` | `true` | Enable or disable metrics |
-| `beforeSendMetric` | `((SentryMetric) -> SentryMetric?)?` | `nil` | Filter or mutate metrics before send; return `nil` to drop |
-
-For SDK 9.4.0-9.11.x, metrics used `options.experimental.enableMetrics` and
-`options.experimental.beforeSendMetric`. Those experimental options were removed in
-9.12.0; use the top-level options above.
+| `beforeSendMetric` | `((SentryMetric) -> SentryMetric?)?` | `nil` | Filter or mutate metrics before send. Return `nil` to drop. |
 
 ## Code Examples
 
 ### Basic setup
 
-```swift
-import Sentry
-
-SentrySDK.start { options in
-    options.dsn = "___PUBLIC_DSN___"
-    options.enableMetrics = true  // default in SDK 9.12+
-}
-```
+Metrics are enabled by default.
+Call the `SentrySDK.metrics` API to record them.
 
 ### Counter
 
@@ -121,15 +110,15 @@ scrubbed and useful for grouping.
   for occurrences.
 - Avoid metrics that duplicate automatic spans, failed request events, app hangs,
   watchdog terminations, or MetricKit diagnostics.
-- Keep `enableMetrics = true` unless the app has a policy or volume reason to disable
-  metrics.
+- Use `beforeSendMetric` to drop metrics that do not meet the app’s policy or volume
+  requirements.
 
 ## Troubleshooting
 
 | Issue | Solution |
 | --- | --- |
-| `enableMetrics` compile error | Requires SDK 9.12+; on 9.4-9.11 use `experimental.enableMetrics` or upgrade |
-| Metric not sent | Verify `SentrySDK.start` ran and `enableMetrics` is true |
+| `enableMetrics` compile error | Removed in SDK 9.27.0. Metrics are enabled by default. |
+| Metric not sent | Verify `SentrySDK.start` ran and that `beforeSendMetric` is not dropping the metric |
 | Count with `unit` fails | `count` has no `unit` parameter; use `gauge` or `distribution` if units are needed |
 | Objective-C compile issue | Metrics are Swift-only |
 | Too many unique series | Reduce high-cardinality attributes and metric names |

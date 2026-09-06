@@ -3,8 +3,7 @@
 Opinionated wizard that scans your Apple project and guides you through complete Sentry
 setup.
 
-> **Note:** SDK versions and APIs below reflect Sentry docs at time of writing
-> (sentry-cocoa 9.15.0). Always verify against
+> **Note:** This guidance targets sentry-cocoa 9.27.0+. Always verify against
 > [docs.sentry.io/platforms/apple/](https://docs.sentry.io/platforms/apple/) before
 > implementing.
 
@@ -121,7 +120,7 @@ https://github.com/getsentry/sentry-cocoa.git
 
 Or in `Package.swift`:
 ```swift
-.package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.15.0"),
+.package(url: "https://github.com/getsentry/sentry-cocoa", from: "9.27.0"),
 ```
 
 **SPM Products** — choose **exactly one** per target:
@@ -147,7 +146,7 @@ manifest):
 // Package.swift (Swift 6.1+)
 .package(
     url: "https://github.com/getsentry/sentry-cocoa",
-    from: "9.15.0",
+    from: "9.27.0",
     traits: ["NoUIFramework"]
 ),
 
@@ -169,7 +168,7 @@ platform :ios, '15.0'
 use_frameworks!
 
 target 'YourApp' do
-  pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '9.15.0'
+  pod 'Sentry', :git => 'https://github.com/getsentry/sentry-cocoa.git', :tag => '9.27.0'
 end
 ```
 
@@ -255,12 +254,6 @@ struct MyApp: App {
             // Session Replay. Keep production sampling conservative and verify masking on iOS 26+.
             options.sessionReplay.sessionSampleRate = 0.1
             options.sessionReplay.onErrorSampleRate = 1.0
-
-            // Logging (SDK 9.0.0+ top-level; use options.experimental.enableLogs in 8.x)
-            options.enableLogs = true
-
-            // Metrics are enabled by default in SDK 9.12+. Set false only to opt out.
-            options.enableMetrics = true
         }
     }
 
@@ -305,12 +298,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
             options.sessionReplay.sessionSampleRate = 0.1
             options.sessionReplay.onErrorSampleRate = 1.0
-
-            // Logging (SDK 9.0.0+ top-level; use options.experimental.enableLogs in 8.x)
-            options.enableLogs = true
-
-            // Metrics are enabled by default in SDK 9.12+. Set false only to opt out.
-            options.enableMetrics = true
         }
         return true
     }
@@ -372,8 +359,8 @@ For each feature: `Read ./<feature>.md`, follow steps exactly, verify it works.
 | `onLastRunStatusDetermined` | `Closure` | `nil` | Called after SDK determines previous launch crash status |
 | `strictTraceContinuation` | `Bool` | `false` | Reject incoming traces from other orgs; validates `sentry-org_id` in baggage headers (sentry-cocoa ≥9.10.0) |
 | `orgId` | `String?` | `nil` | Organization ID for strict trace validation; auto-parsed from DSN host (e.g. `o123.ingest.sentry.io` → `"123"`) if not set explicitly |
-| `enableLogs` | `Bool` | `false` | Enable structured logs |
-| `enableMetrics` | `Bool` | `true` | Enable Swift Metrics API (SDK 9.12+) |
+| `beforeSendLog` | `Closure` | `nil` | Filter or drop structured logs before sending |
+| `beforeSendMetric` | `Closure` | `nil` | Filter or drop Swift metrics before sending |
 
 ### Environment Variables
 
@@ -414,8 +401,6 @@ options.configureProfiling = {
 options.sessionReplay.sessionSampleRate = 0.1   // 10% continuous
 options.sessionReplay.onErrorSampleRate = 1.0   // 100% on error (keep high)
 
-options.enableLogs = true
-options.enableMetrics = true             // default true in SDK 9.12+
 options.debug = false                   // never in production
 ```
 

@@ -1,39 +1,15 @@
 # Logging — Sentry Cocoa SDK
 
-> Minimum SDK (experimental): `sentry-cocoa` v8.55.0+ Minimum SDK (stable):
-> `sentry-cocoa` v9.0.0+
+Requires `sentry-cocoa` v9.27.0+. Logs are enabled by default, so no additional
+configuration is required.
 
 ## Configuration
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
-| `enableLogs` | `Bool` | `false` | Enable structured logging (v9.0.0+, stable) |
-| `experimental.enableLogs` | `Bool` | `false` | Enable structured logging (v8.55.0–8.x, experimental) |
-| `beforeSendLog` | `((SentryLog) -> SentryLog?)?` | `nil` | Filter or modify logs before sending; return `nil` to drop |
+| `beforeSendLog` | `((SentryLog) -> SentryLog?)?` | `nil` | Filter or modify logs before sending. Return `nil` to drop. |
 
 ## Code Examples
-
-### Enable logging
-
-**SDK v9.0.0+ (stable, recommended):**
-
-```swift
-import Sentry
-
-SentrySDK.start { options in
-    options.dsn = "___PUBLIC_DSN___"
-    options.enableLogs = true
-}
-```
-
-**SDK v8.55.0–8.x (experimental):**
-
-```swift
-SentrySDK.start { options in
-    options.dsn = "___PUBLIC_DSN___"
-    options.experimental.enableLogs = true
-}
-```
 
 ### All log levels
 
@@ -98,7 +74,6 @@ individual values as queryable attributes.
 
 ```swift
 SentrySDK.start { options in
-    options.enableLogs = true
     options.beforeSendLog = { log in
         // Drop trace-level logs
         if log.level == .trace { return nil }
@@ -160,7 +135,6 @@ import Sentry
 SentrySDK.start { options in
     options.dsn = "___PUBLIC_DSN___"
     options.environment = "production"
-    options.enableLogs = true   // v9.0.0+
     options.beforeSendLog = { log in
         // Drop trace and debug in production
         guard log.level != .trace && log.level != .debug else { return nil }
@@ -199,10 +173,10 @@ SentrySDK.logger.info("User signed in",
 
 | Issue | Solution |
 | --- | --- |
-| Logs not appearing in Sentry | Verify `options.enableLogs = true` (v9+) or `options.experimental.enableLogs = true` (v8.55+) |
+| Logs not appearing in Sentry | Verify `SentrySDK.start` ran and that `beforeSendLog` is not dropping the log |
 | Logs only partially appearing | Logs may be lost during crashes; this is a known SDK limitation |
 | `SentrySDK.logger` not found | Requires v8.55.0+; check SPM/CocoaPods version |
 | Attributes not queryable | Prefer `String`, `Bool`, `Int`, `Double`, `Float`, arrays, or sets; convert complex objects to stable strings |
-| `beforeSendLog` not called | Ensure you set it before `SentrySDK.start` completes and `enableLogs = true` |
+| `beforeSendLog` not called | Ensure you set it during `SentrySDK.start` configuration |
 | Too many logs overwhelming Sentry | Use `beforeSendLog` to filter by level; set minimum level for production |
 | Logs missing user context | Call `SentrySDK.setUser(...)` before logging to attach user identity automatically |
