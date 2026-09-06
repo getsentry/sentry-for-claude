@@ -81,6 +81,7 @@ Don’t ask open-ended questions — lead with a recommendation:
 | Metrics | Business events or SLO tracking needed | `./metrics.md` |
 | Crons | Scheduler or cron patterns detected | `./crons.md` |
 | AI Monitoring | `laravel/ai` detected in a Laravel app, or manual PHP AI spans needed | `./ai-monitoring.md` |
+| Feature Flags | `laravel/pennant` or other flag evaluations detected | `./feature-flags.md` |
 
 Propose: *“I recommend Error Monitoring + Tracing [+ Logging]. Want Profiling, Crons,
 Metrics, or AI Monitoring too?”*
@@ -232,6 +233,7 @@ Load the reference, follow its steps, verify before moving on:
 | Metrics | `./metrics.md` | Business KPIs / SLO tracking |
 | Crons | `./crons.md` | Scheduler / cron patterns detected |
 | AI Monitoring | `./ai-monitoring.md` | `laravel/ai` detected in Laravel, or manual PHP AI spans needed |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: `Read ./<feature>.md`, follow steps exactly, verify it works.
 

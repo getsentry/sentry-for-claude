@@ -284,6 +284,7 @@ Load the reference file, follow steps exactly, and verify before moving on:
 | Logs | `./logging.md` | Structured logs/correlation needed |
 | User Feedback | `./user-feedback.md` | In-app feedback flows needed |
 | Framework Features | `./react-router-framework-features.md` | Entry files, wrappers, source maps, startup import strategy |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: `Read ./<feature>.md`, follow steps exactly, verify it works.
 

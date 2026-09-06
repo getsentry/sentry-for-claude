@@ -100,6 +100,8 @@ Topics that aren’t one of the canonical signals but are specific to a platform
 own file with a descriptive slug, linked from `index.md`. Examples already in the tree:
 
 - `integrations.md` / `ecosystem-integrations.md` (Android, Flutter)
+- `feature-flags.md` — evaluation tracking + pointer to change tracking (supported
+  platforms only; not a canonical signal)
 - `laravel.md`, `symfony.md` (PHP)
 - `durable-objects.md` (Cloudflare)
 - `react-features.md`, `react-router-framework-features.md`, `tanstackstart-features.md`

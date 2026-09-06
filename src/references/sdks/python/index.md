@@ -32,6 +32,11 @@ grep -E "loguru" requirements.txt pyproject.toml 2>/dev/null
 grep -rE "openai|anthropic|langchain|huggingface|google-genai|pydantic-ai|litellm" \
   requirements.txt pyproject.toml 2>/dev/null
 
+# Detect feature-flag providers
+grep -rE "launchdarkly|openfeature|statsig|unleash|flagsmith|ldclient" \
+  requirements.txt pyproject.toml 2>/dev/null
+
+
 # Detect schedulers / crons
 grep -rE "celery|apscheduler|schedule|crontab" requirements.txt pyproject.toml 2>/dev/null
 
@@ -93,6 +98,7 @@ Don’t ask open-ended questions — lead with a recommendation:
 | Metrics | Business events or SLO tracking needed | `./metrics.md` |
 | Crons | Celery Beat, APScheduler, or cron patterns | `./crons.md` |
 | AI Monitoring | OpenAI/Anthropic/LangChain/etc. detected | `./ai-monitoring.md` |
+| Feature Flags | LaunchDarkly / OpenFeature / Statsig / Unleash / custom flags detected | `./feature-flags.md` |
 
 **OTel tracing detected:** *“I see OpenTelemetry tracing in the project.
 I recommend Sentry’s OTLP integration for tracing (via your existing OTel setup) + Error
@@ -236,6 +242,7 @@ Load the reference, follow its steps, verify before moving on:
 | Metrics | `./metrics.md` | Business KPIs / SLO tracking |
 | Crons | `./crons.md` | Scheduler / cron patterns detected |
 | AI Monitoring | `./ai-monitoring.md` | AI library detected |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: `Read ./<feature>.md`, follow steps exactly, verify it works.
 

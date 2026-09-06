@@ -327,6 +327,7 @@ Load the reference file, follow its steps, then verify before moving on:
 | Tracing | `./tracing.md` | API calls / distributed tracing needed |
 | Session Replay | `./session-replay.md` | User-facing app |
 | Logging | `./logging.md` | Structured logs / log-to-trace correlation |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: `Read ./<feature>.md`, follow steps exactly, verify it works.
 

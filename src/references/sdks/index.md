@@ -21,6 +21,7 @@ A quick orientation so you know which signal file to open.
 | **Session Replay** | A video-like reproduction of a user’s session (browser and mobile) leading up to an error. |
 | **User Feedback** | A widget or API to collect user-submitted reports, optionally attached to an event. |
 | **AI / LLM Monitoring** | Spans, token usage, and tool calls for LLM SDKs (OpenAI, Anthropic, Vercel AI, LangChain, Google GenAI, Laravel AI). |
+| **Feature Flags** | Evaluation tracking on errors/spans plus provider change tracking — context for rollouts, not a standalone signal. Platform-extension file `feature-flags.md` on supported SDKs. |
 
 ## How the references are structured
 

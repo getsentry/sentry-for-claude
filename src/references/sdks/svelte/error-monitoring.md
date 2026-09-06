@@ -143,7 +143,7 @@ Sentry.setUser(null);
 ```typescript
 Sentry.setTag("release.channel", "beta");
 Sentry.setTags({
-  "feature.flag": "new-checkout",
+  "checkout.step": "payment",
   region: "us-east-1",
   version: "2.1.0",
 });

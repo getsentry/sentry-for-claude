@@ -169,8 +169,9 @@ flag it. You’ll also want to immediately read
 and the baseline-signal context in hand before you start.
 
 When it’s done, surface other options — chiefly the **`sentry-instrument`** skill to add
-more telemetry (logging, profiling, session replay, crons, …), and releases so issues
-tie to the deploy that introduced them.
+more telemetry (logging, profiling, session replay, crons, feature-flag evaluation
+tracking when a flag system is already in the repo, …), and releases so issues tie to
+the deploy that introduced them.
 As in the existing-user path, only name a skill you’ve confirmed is available in your
 harness’s skill list; otherwise offer the docs fallback.
 Don’t auto-run them.
@@ -193,7 +194,7 @@ Present the relevant options with your interactive prompt; the user can also jus
 what they want:
 
 - **Add a signal** — tracing, logging, metrics, crons, profiling, session replay, user
-  feedback, AI/LLM monitoring.
+  feedback, AI/LLM monitoring, or feature-flag tracking when the app already uses flags.
   → the **`sentry-instrument`** skill.
 - **Set up Sentry properly** (recommended defaults across several signals).
   → the **`sentry-instrument`** skill.

@@ -307,7 +307,7 @@ Sentry.logger.info("Checkout completed", {
   itemCount: cart.items.length,
   paymentMethod: "stripe",
   userTier: user.tier,
-  activeFeatureFlags: user.flags.join(","),
+  entitlementTier: user.tiers.join(","),
   durationMs: Date.now() - startTime,
 });
 

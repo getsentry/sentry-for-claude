@@ -1,6 +1,9 @@
 # Flag attributes
 
-Feature-flag evaluation attributes.
+Feature-flag evaluation attributes on spans.
+Values are the boolean evaluation result; the `<key>` suffix is the flag name.
+Product/SDK evaluation tracking is documented under concepts and
+`sdks/*/feature-flags.md` — do not confuse these attributes with generic tags.
 
 | Key | Type | Brief |
 | --- | --- | --- |

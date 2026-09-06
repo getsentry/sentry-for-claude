@@ -520,6 +520,7 @@ Load the reference, follow its steps, verify before moving on:
 | Metrics | `./metrics.md` | Custom KPIs / SLO tracking |
 | Crons | `./crons.md` | Scheduled jobs or task queues |
 | AI Monitoring | `./ai-monitoring.md` | OpenAI/Anthropic/LangChain detected |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: `Read ./<feature>.md`, follow steps exactly, verify it works.
 

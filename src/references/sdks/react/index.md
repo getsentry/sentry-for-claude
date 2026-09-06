@@ -339,6 +339,7 @@ Load the reference file, follow its steps, verify before moving on:
 | Logging | `./logging.md` | Structured log search / log-to-trace |
 | Profiling | `./profiling.md` | Performance-critical app |
 | React Features | `./react-features.md` | Redux, component tracking, source maps, integrations catalog |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: `Read ./<feature>.md`, follow steps exactly, verify it works.
 

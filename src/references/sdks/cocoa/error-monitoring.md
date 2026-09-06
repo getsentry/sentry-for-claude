@@ -103,7 +103,7 @@ The scope callback receives an isolated copy — changes don’t affect global s
 
 ```swift
 SentrySDK.capture(error: error) { scope in
-    scope.setTag(value: "checkout", key: "feature")
+    scope.setTag(value: "payment", key: "checkout.step")
     scope.setContext(value: ["amount": 99.99, "currency": "USD"], key: "payment")
 }
 

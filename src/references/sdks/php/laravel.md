@@ -493,17 +493,25 @@ ensure you’re using `withScope()` (not `configureScope()`) in Octane environme
 
 ## Feature Flags (Laravel Pennant)
 
-The `PennantIntegration` auto-records Pennant feature flag evaluations:
+**Why:** so Issue Details shows which Pennant flags were active when an error fired, and
+— with provider **change tracking** configured in Sentry — so rollouts can be marked as
+suspect. Full guide: [`feature-flags.md`](./feature-flags.md).
+
+The `PennantIntegration` auto-records Pennant feature flag evaluations (boolean-style
+active checks):
 
 ```php
 use Laravel\Pennant\Feature;
 
 // Checked features are automatically added as feature flags in Sentry
-$value = Feature::value('billing-v2');
 $active = Feature::active('new-onboarding');
 ```
 
-No configuration needed — enabled automatically when `laravel/pennant` is installed.
+No SDK configuration needed — enabled automatically when `laravel/pennant` is installed.
+Still set up
+[change tracking](https://docs.sentry.io/product/issues/issue-details/feature-flags/#change-tracking)
+for the system that owns flag definitions so Sentry can correlate definition changes
+with errors.
 
 * * *
 

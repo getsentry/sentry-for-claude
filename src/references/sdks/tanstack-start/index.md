@@ -254,6 +254,7 @@ Load the reference file, follow steps exactly, and verify before moving on:
 | Logs | `./logging.md` | Structured logs and correlation needed |
 | User Feedback | `./user-feedback.md` | In-app feedback collection needed |
 | TanStack Start Features | `./tanstackstart-features.md` | Server entry, Vite plugin, source maps, runtime startup |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: `Read ./<feature>.md`, follow steps exactly, verify it works.
 

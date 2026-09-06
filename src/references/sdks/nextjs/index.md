@@ -371,6 +371,7 @@ Load the corresponding reference file and follow its steps:
 | AI Monitoring | `./ai-monitoring.md` | App uses OpenAI, Vercel AI SDK, or Anthropic |
 | Crons | `./crons.md` | Vercel Cron, scheduled API routes, `node-cron` |
 | Metrics | `./metrics.md` | Custom counters, gauges, distributions via `Sentry.metrics.*` |
+| Feature Flags | `./feature-flags.md` | Flag system detected (LaunchDarkly, OpenFeature, Statsig, Unleash, Pennant, Remote Config, …) — also enable change tracking |
 
 For each feature: read the reference file, follow its steps exactly, and verify before
 moving on.

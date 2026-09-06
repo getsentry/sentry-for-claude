@@ -1,6 +1,6 @@
 ---
 name: sentry-instrument
-description: Instrument an application with Sentry — detect the platform, install and initialize the SDK if needed, and wire up any signal — error monitoring, tracing/performance, logging, metrics, profiling, session replay, user feedback, cron check-ins, and AI/LLM monitoring (agent runs, token cost, and conversations for OpenAI, Anthropic, Vercel AI, LangChain, Google GenAI, Pydantic AI, and Laravel AI). Use to add Sentry to a project or to capture more than errors.
+description: Instrument an application with Sentry — detect the platform, install and initialize the SDK if needed, and wire up any signal — error monitoring, tracing/performance, logging, metrics, profiling, session replay, user feedback, cron check-ins, AI/LLM monitoring (agent runs, token cost, and conversations for OpenAI, Anthropic, Vercel AI, LangChain, Google GenAI, Pydantic AI, and Laravel AI), and feature-flag evaluation tracking when the app already uses flags (plus provider change tracking). Use to add Sentry to a project or to capture more than errors.
 license: Apache-2.0
 ---
 # Sentry Instrument
@@ -84,8 +84,11 @@ For each signal the scope calls for:
    [`references/concepts/ai-monitoring.md`](references/concepts/ai-monitoring.md) for
    the `gen_ai.*` model, conversation-ID rules, token/cost accounting, and the AI
    sampling and PII strategy (the per-platform code then lives in that platform’s
-   `ai-monitoring.md`). **Skip this when the user already said “add tracing, you pick
-   the defaults”** — go straight to the HOW.
+   `ai-monitoring.md`). For feature flags (when a flag system is detected), read
+   [`references/concepts/feature-flags.md`](references/concepts/feature-flags.md) then
+   the platform `feature-flags.md`. **Skip concept reads when the user already said “add
+   tracing, you pick the defaults”** — go straight to the HOW (still propose flags if a
+   flag SDK is clearly present).
 2. **HOW.** Read the platform’s signal file — `references/sdks/<slug>/<signal>.md` (e.g.
    `references/sdks/nextjs/tracing.md`) — and apply the code.
    The platform `index.md` feature catalog links each supported signal and marks
@@ -94,6 +97,17 @@ For each signal the scope calls for:
 Signals this skill wires up: error monitoring, tracing/performance, profiling (requires
 tracing), logging, metrics, cron check-in code, session replay, user feedback, and
 AI/LLM monitoring.
+
+**Feature flags** are not a separate signal — they are context on errors/spans.
+When detecting the platform or scanning an existing app, look for a flag system
+(LaunchDarkly, OpenFeature, Statsig, Unleash, Flagsmith, Laravel Pennant, Firebase
+Remote Config, home-grown toggles).
+If one is present on a supported SDK, **propose** evaluation tracking and provider
+change tracking before or while wiring other signals: read
+[`references/concepts/feature-flags.md`](references/concepts/feature-flags.md) for why,
+then `references/sdks/<slug>/feature-flags.md` for how.
+Never fake flags via tags, breadcrumbs, or `setContext`. Skip entirely when the app has
+no flag evaluations.
 
 ### Semantic conventions
 
@@ -178,6 +192,9 @@ auto-running them:
 - Ship it to production.
 - Add a signal — logging, session replay, or profiling are common next steps (tracing is
   already in the base `init`).
+- If a feature-flag system is in the repo and evaluation tracking is not wired yet,
+  propose it (with change tracking) — see
+  [`references/concepts/feature-flags.md`](references/concepts/feature-flags.md).
 - Harden the setup — readable stack traces (source maps for JS, debug symbols for
   native/mobile) and releases are the natural pair, and you can do both here:
   [`references/debug-artifacts/index.md`](references/debug-artifacts/index.md) routes to

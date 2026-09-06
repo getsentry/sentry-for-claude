@@ -33,7 +33,7 @@ Add the artifact to your `dependencies {}` block (versions managed by BOM):
 | **Apollo 4** | `io.sentry:sentry-apollo-4` | App uses Apollo GraphQL v4 |
 | **Kotlin Extensions** | `io.sentry:sentry-kotlin-extensions` | Kotlin coroutines context propagation |
 | **Ktor Client** | `io.sentry:sentry-ktor-client` | App uses Ktor HTTP client |
-| **LaunchDarkly** | `io.sentry:sentry-launchdarkly-android` | App uses LaunchDarkly feature flags |
+| **LaunchDarkly** | `io.sentry:sentry-launchdarkly-android` | App uses LaunchDarkly — see [`feature-flags.md`](./feature-flags.md) |
 
 ### Gradle Plugin Bytecode Instrumentation
 

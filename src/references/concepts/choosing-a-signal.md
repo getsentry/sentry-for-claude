@@ -55,6 +55,9 @@ ties errors, spans, logs, replays, and metrics together for debugging.
 - **Replay:** frontend (and mobile) only; high sampling on errors, low on normal
   sessions.
 - **Crons:** every scheduled job whose silent failure would hurt.
+- **Feature flags:** whenever the app already evaluates flags — wire evaluation tracking
+  (and point at change tracking).
+  Skip if there is no flag system.
 
 When the user is unsure, ask what question they’re trying to answer and map it with the
 table above. When they say “set it up properly” / “you pick the defaults,” lean on the
@@ -66,6 +69,10 @@ maps**, then add logs/replay/profiling as the use case warrants.
 These shape how the signals above behave and how you act on them — each has its own
 reference:
 
+- **Feature flags** — evaluation tracking in the SDK plus change tracking via your
+  provider webhook. Not a substitute for errors/traces; context that explains whether a
+  rollout caused them.
+  See [`feature-flags.md`](feature-flags.md).
 - **Releases** — tie every event to a deployed version.
   Unlocks regression detection, crash-free rates, suspect commits, and
   resolve-in-next-release.

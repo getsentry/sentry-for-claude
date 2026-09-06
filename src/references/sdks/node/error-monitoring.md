@@ -495,7 +495,7 @@ Key: max 32 chars, `[a-zA-Z0-9_.:−]`. Value: max 200 chars.
 
 ```javascript
 Sentry.setTag("db_region", "us-east-1");
-Sentry.setTag("feature_flag_new_ui", true);
+Sentry.setTag("checkout_step", "payment");
 Sentry.setTags({
   service: "checkout",
   version: "2.1.4",
