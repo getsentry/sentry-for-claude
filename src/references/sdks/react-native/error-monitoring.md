@@ -172,6 +172,11 @@ Sentry.init({
   // Android 12+: use ApplicationExitInfo for enhanced tombstone reports
   enableTombstone: true,
 
+  // Report historical tombstones (past app runs) from ApplicationExitInfo,
+  // not just the latest run. Historical events have no current scope data
+  // (breadcrumbs, etc). Only takes effect if `enableTombstone` is `true`.
+  enableHistoricalTombstoneReporting: false,
+
   // Attach all thread states to Android events (has a performance impact)
   attachThreads: false,
 
@@ -1389,6 +1394,7 @@ Sentry.init({
   autoInitializeNativeSdk: true,
   enableNdkScopeSync: true,            // sync Java scope to NDK (Android)
   enableTombstone: true,               // Android 12+ ApplicationExitInfo (default: false)
+  enableHistoricalTombstoneReporting: false, // report past-run tombstones too (requires enableTombstone)
   attachThreads: false,                // all threads on Android events
   enableNativeNagger: true,            // warn if native init fails
   enableWatchdogTerminationTracking: true, // iOS OOM tracking
