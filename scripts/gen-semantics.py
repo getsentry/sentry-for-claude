@@ -16,6 +16,9 @@ from pathlib import Path
 SOURCE_URL = "https://getsentry.github.io/sentry-conventions/api/attributes.json"
 REPO_ROOT = Path(__file__).resolve().parents[1]
 OUT_DIR = REPO_ROOT / "src" / "references" / "semantics"
+SKILL_PATH = REPO_ROOT / "src" / "skills" / "sentry-instrument" / "SKILL.md"
+TOC_START = "<!-- semantics-toc:start -->"
+TOC_END = "<!-- semantics-toc:end -->"
 
 # One-line domain intros shown at the top of each file. Keep these about the
 # domain, not about how the file was generated.
@@ -157,7 +160,24 @@ def main() -> None:
         lines.append("")
         (OUT_DIR / f"{cat}.md").write_text("\n".join(lines), encoding="utf-8")
 
-    print(f"wrote {len(by_cat)} domain files ({len(stable)} stable attrs) -> {OUT_DIR.relative_to(REPO_ROOT)}")
+    skill = SKILL_PATH.read_text(encoding="utf-8")
+    before, marker, tail = skill.partition(TOC_START)
+    if not marker:
+        raise RuntimeError(f"missing {TOC_START} in {SKILL_PATH}")
+    _, marker, after = tail.partition(TOC_END)
+    if not marker:
+        raise RuntimeError(f"missing {TOC_END} in {SKILL_PATH}")
+    links = "\n".join(
+        f"- [`{cat}`](references/semantics/{cat}.md)" for cat in sorted(by_cat)
+    )
+    SKILL_PATH.write_text(
+        f"{before}{TOC_START}\n{links}\n{TOC_END}{after}", encoding="utf-8"
+    )
+
+    print(
+        f"wrote {len(by_cat)} domain files ({len(stable)} stable attrs) and refreshed "
+        f"{SKILL_PATH.relative_to(REPO_ROOT)}"
+    )
 
 
 if __name__ == "__main__":

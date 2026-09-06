@@ -1,0 +1,70 @@
+# Refresh the generated Sentry semantic-convention references once a week.
+# The release App token is required because this workflow commits directly to
+# main and GITHUB_TOKEN pushes do not trigger the normal push workflows.
+
+name: Regenerate semantic conventions
+
+on:
+  schedule:
+    - cron: "17 13 * * 1"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: regenerate-semantic-conventions
+  cancel-in-progress: false
+
+jobs:
+  regenerate:
+    if: github.repository == 'getsentry/sentry-for-ai'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Get auth token
+        id: token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          client-id: ${{ vars.SENTRY_RELEASE_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.SENTRY_RELEASE_BOT_PRIVATE_KEY }}
+
+      - name: Checkout main
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: main
+          token: ${{ steps.token.outputs.token }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+
+      - name: Regenerate references
+        run: |
+          set -euo pipefail
+          python3 scripts/gen-semantics.py
+
+          # flowmark exits non-zero when it rewrites files. Run it once to
+          # apply fixes, then again to prove the generated tree is stable.
+          ./scripts/lint.sh run flowmark --files \
+            src/references/semantics/*.md \
+            src/skills/sentry-instrument/SKILL.md || true
+          ./scripts/lint.sh run flowmark --files \
+            src/references/semantics/*.md \
+            src/skills/sentry-instrument/SKILL.md
+          ./scripts/lint.sh run built-links
+
+      - name: Commit changes
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- src/references/semantics src/skills/sentry-instrument/SKILL.md; then
+            echo "No semantic-convention changes."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/references/semantics src/skills/sentry-instrument/SKILL.md
+          git commit -m "chore(sentry-instrument): regenerate semantic conventions"
+          git push origin HEAD:main
