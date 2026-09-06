@@ -575,10 +575,14 @@ When omitted, falls back to `sendDefaultPii` for backwards compatibility.
 | `cookies` | `boolean \| { allow: string[] } \| { deny: string[] }` | `true` | Cookie collection; `true` = all (filtered), `false` = none, `allow`/`deny` = specific keys |
 | `httpHeaders` | `{ request?, response? }` | `{ request: true, response: true }` | HTTP header collection; each can be `boolean` or `allow`/`deny` object |
 | `httpBodies` | `string[]` | `["incomingRequest", "outgoingRequest", "incomingResponse", "outgoingResponse"]` | HTTP body types to collect (when `dataCollection` is explicitly set) |
-| `queryParams` | `boolean \| { allow: string[] } \| { deny: string[] }` | `true` | Query parameter collection with sensitive value filtering |
+| `urlQueryParams` | `boolean \| { allow: string[] } \| { deny: string[] }` | `true` | Query parameter collection with sensitive value filtering (SDK ≥10.67.0; replaces deprecated `queryParams`) |
+| `graphQL` | `{ document?, variables? }` | `{ document: true, variables: true }` | Attach GraphQL document text / operation variables — requires a GraphQL integration enabled (SDK ≥10.66.0) |
+| `databaseQueryData` | `boolean` | `true` | Collect DB query parameters, inline literal values, mutation/request bodies, and returned result data (SDK ≥10.66.0) |
 | `genAI` | `{ inputs?, outputs? }` | `{ inputs: true, outputs: true }` | Generative AI input/output recording |
-| `stackFrameVariables` | `boolean` | `true` | Capture local variable values in stack frames |
+| `stackFrameVariables` | `boolean \| { allow: string[] } \| { deny: string[] }` | `true` | Capture local variable values in stack frames; `allow`/`deny` filters by variable name **as it appears after bundling/minification** (SDK ≥10.68.0) |
 | `frameContextLines` | `number` | `5` | Source code context lines around stack frames |
+
+> **Deprecated:** `queryParams` still works but is deprecated in favor of `urlQueryParams` (same shape and default).
 
 **Example:**
 ```typescript
@@ -591,7 +595,7 @@ Sentry.init({
       request: { deny: ["authorization", "cookie"] },
       response: true,
     },
-    queryParams: { allow: ["utm_source", "utm_campaign"] },
+    urlQueryParams: { allow: ["utm_source", "utm_campaign"] },
   },
 });
 ```
