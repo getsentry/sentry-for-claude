@@ -505,6 +505,15 @@ For each feature: read the reference file, follow its steps exactly, and verify 
 | `IncludeTitleInBreadcrumbs` | `bool` | `false` | Titles from `Window`, `Page` elements. ⚠️ PII risk. |
 | `IncludeBackgroundingStateInBreadcrumbs` | `bool` | `false` | `Window.Backgrounding` event state. ⚠️ PII risk. |
 
+### Android Native Options (`SentryOptions.Native`)
+
+Available when targeting Android via MAUI or Xamarin. Access via `options.Native.PropertyName`.
+
+| Option | Type | Default | Notes |
+|--------|------|---------|-------|
+| `TombstoneEnabled` | `bool` | `false` | Enables native crash reporting via tombstones. See [Android Tombstone docs](https://docs.sentry.io/platforms/android/configuration/tombstones/). |
+| `ReportHistoricalTombstones` | `bool` | `false` | Reports historical tombstones from previous app runs. Requires `TombstoneEnabled = true`. |
+
 ### Environment Variables
 
 | Variable | Purpose |
