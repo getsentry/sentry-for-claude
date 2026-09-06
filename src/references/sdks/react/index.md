@@ -377,12 +377,17 @@ Replaces the simple `sendDefaultPii` boolean with per-feature toggles:
 | `cookies` | `boolean \| { allow: string[] } \| { deny: string[] }` | `true` | Cookie collection and filtering; `true` = all cookies (sensitive keys filtered) |
 | `httpHeaders.request` | `boolean \| { allow: string[] } \| { deny: string[] }` | `true` | HTTP request header collection |
 | `httpHeaders.response` | `boolean \| { allow: string[] } \| { deny: string[] }` | `true` | HTTP response header collection |
-| `queryParams` | `boolean \| { allow: string[] } \| { deny: string[] }` | `true` | Query parameter collection and filtering |
+| `urlQueryParams` | `boolean \| { allow: string[] } \| { deny: string[] }` | `true` | Query parameter collection and filtering (SDK ≥10.67.0; replaces deprecated `queryParams`) |
 | `httpBodies` | `HttpBodyCollectionTarget[]` | `["incomingRequest", "outgoingRequest", "incomingResponse", "outgoingResponse"]` | Collect request/response bodies; options: `'incomingRequest'`, `'outgoingRequest'`, `'incomingResponse'`, `'outgoingResponse'` |
+| `graphQL.document` | `boolean` | `true` | Attach the GraphQL document (query/mutation source text) — requires a GraphQL integration enabled (SDK ≥10.66.0) |
+| `graphQL.variables` | `boolean` | `true` | Attach GraphQL operation variables — requires a GraphQL integration enabled (SDK ≥10.66.0) |
+| `databaseQueryData` | `boolean` | `true` | Collect DB query parameters, inline literal values, mutation/request bodies, and returned result data (SDK ≥10.66.0) |
 | `genAI.inputs` | `boolean` | `true` | Record AI model inputs (for AI monitoring) |
 | `genAI.outputs` | `boolean` | `true` | Record AI model outputs (for AI monitoring) |
 | `stackFrameVariables` | `boolean` | `true` | Capture local variable values in stack frames |
 | `frameContextLines` | `number` | `5` | Source code context lines around stack frames |
+
+> **Deprecated:** `queryParams` still works but is deprecated in favor of `urlQueryParams` (same shape and default).
 
 **Example:** Allow only specific cookies and headers:
 
